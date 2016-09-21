@@ -1,0 +1,31 @@
+<?php
+/**
+ * configurepage template
+ */
+?>
+
+<?php $itemId = $this->getRequest()->getParam('id'); ?>
+<?php $productId = Mage::getModel('sales/quote_item')->load($itemId, 'item_id')->getProductId(); ?>
+<?php
+$catalogItem = Mage::getModel('promotionalgift/quote')->load($itemId, 'item_id')->getId();
+$shoppingItem = Mage::getModel('promotionalgift/shoppingquote')->load($itemId, 'item_id')->getId();
+?>
+<?php if ($catalogItem || $catalogItem): ?>
+    <style type="text/css">
+        .add-to-cart label {
+            display: none;
+        }
+
+        .add-to-cart #qty {
+            display: none;
+        }
+
+        #product-price-<?php echo $productId?> {
+            text-decoration: line-through;
+        }
+
+        #product-price-<?php echo $productId?>_clone {
+            text-decoration: line-through;
+        }
+    </style>
+<?php endif; ?>

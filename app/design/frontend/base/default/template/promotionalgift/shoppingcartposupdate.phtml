@@ -1,0 +1,176 @@
+<?php
+/**
+ * Magestore
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Magestore.com license that is
+ * available through the world-wide-web at this URL:
+ * http://www.magestore.com/license-agreement.html
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Magestore
+ * @package     Magestore_Promotionalgift
+ * @copyright   Copyright (c) 2012 Magestore (http://www.magestore.com/)
+ * @license     http://www.magestore.com/license-agreement.html
+ */
+/**
+ * Promotionalgift template
+ *
+ * @see Magestore_Promotionalgift_Block_Shoppingcart
+ */
+?>
+<?php $cart = Mage::getSingleton('checkout/cart'); ?>
+<?php if (!$cart->getQuote()->getItemsCount()) return; ?>
+<?php
+$helper = Mage::helper('promotionalgift');
+$items = array();
+$ruleIds = $this->getCouponCodeRule();
+if (!$ruleIds)
+    $ruleIds = Mage::helper('promotionalgift/rule')->getShoppingcartRule();
+if (count($ruleIds) > 0) {
+    foreach ($ruleIds as $ruleId):
+        $items = $helper->getShoppingcartFreeGifts($rule);
+        ?>
+        <script type="text/javascript">
+            jQuery(document).ready(function () {
+                jQuery('#promotional-shoppingcart-table').jcarousel({
+                    start: 1,
+                    scroll: 1
+                });
+            });
+        </script>
+        <?php if (count($items)): ?>
+        <?php
+        $rule = Mage::getModel('promotionalgift/shoppingcartrule')->load($ruleId);
+        $totalItems = $this->getTotalItem($rule);
+        $numberFreeItems = $rule->getNumberItemFree();
+        if ($numberFreeItems > $totalItems)
+            $numberFreeItems = $totalItems;
+        $_helper = $this->helper('catalog/output');
+        ?>
+
+        <div id="promotional-srule-<?php echo $ruleId ?>" class="promotional-srule"
+             style="border-right:none;border-left:none;">
+            <div class="promotional-title">
+                <h2 class="main-title"><?php echo $this->__($rule->getName()) ?></h2>
+                <?php if ($totalItems > 1): ?>
+                    <h4 class="child-title"><?php echo $this->__('Please select %s Promotional gifts from the following items', $numberFreeItems); ?></h4>
+                    <input type="hidden" id="numberFreeItems" value="<?php echo $numberFreeItems; ?>"/>
+                    <input type="hidden" id="ruleid" value="<?php echo $rule->getId(); ?>"/>
+                <?php endif ?>
+            </div>
+            <div id="promotional-shoppingcart-table-<?php echo $ruleId ?>" class="jcarousel-skin-tango">
+                <?php if ($totalItems > 1): ?>
+                    <h5 class="child-title"><?php echo $this->__('Please select %s Promotional gifts from the following items', $numberFreeItems); ?></h5>
+                <?php endif ?>
+                <ul id="images" style="height:200px">
+                    <?php foreach ($items as $item): ?>
+                        <?php $product = Mage::getModel('catalog/product')->load($item['product_id']); ?>
+                        <li>
+                            <div class="item">
+                                <div id="promotional_image_<?php echo $ruleId ?>_<?php echo $product->getId(); ?>"
+                                     class="promotional-image">
+                                    <a class="product-img"
+                                       title="<?php //echo 'Product'.$product->getId()      ?>"
+                                       href="<?php
+                                       if ($product->getData('visibility') != Mage_Catalog_Model_Product_Visibility::VISIBILITY_NOT_VISIBLE) {
+                                           echo $product->getProductUrl();
+                                       } else {
+                                           $parentIds = Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($product->getId());
+                                           if ($parentIds) {
+                                               $productParentId = $parentIds[0];
+                                               $productParentModel = Mage::getModel('catalog/product')->load($productParentId);
+                                               if ($productParentModel->getData('visibility') != Mage_Catalog_Model_Product_Visibility::VISIBILITY_NOT_VISIBLE) {
+                                                   echo $productParentModel->getProductUrl();
+                                               } else {
+                                                   echo "#";
+                                               }
+                                           } else {
+                                               echo "#";
+                                           }
+                                       }
+
+                                       ?>"
+                                        >
+                                        <img
+                                            src="<?php echo $this->helper('catalog/image')->init($product, 'small_image')->resize(100); ?>"
+                                            width="100" height="100"
+                                            alt="<?php echo 'Product' . $product->getId() ?>"
+                                            />
+                                    </a>
+                                </div>
+                                <?php $productName = $product->getName() ?>
+                                <?php
+                                if (strlen($productName) >= 15) {
+                                    $productName = substr($productName, 0, 14);
+                                    $productName = $productName . '...';
+                                }
+                                ?>
+                                <h2 class="product-name"
+                                    style="text-align:center;"><?php echo $_helper->productAttribute($product, $productName, 'name') ?></h2>
+
+                                <div class="price-box" style="text-align:center;">
+                                    <p class="old-price">
+                                        <span class="price-label">Regular Price:</span>
+                                                <span id="old-price-166" class="price">
+                                                    <?php echo Mage::helper('core')->currency($product->getPrice()); ?>
+                                                </span>
+                                    </p>
+
+                                    <p class="special-price">
+                                        <span class="price-label">Special Price</span>
+                                                <span id="product-price-166" class="price">
+                                                    <?php
+                                                    $specialPrice = $product->getPrice() - ($product->getPrice()) * ($rule->getDiscountProduct()) / 100;
+                                                    echo Mage::helper('core')->currency($specialPrice);
+                                                    ?>
+                                                </span>
+                                    </p>
+                                </div>
+                                <div class="promotional-button">
+                                    <button
+                                        id="add-free-gift_<?php echo $rule->getId() ?>_<?php echo $product->getId() ?>"
+                                        class="button btn-cart addgift" title="Add to Cart" type="button"
+                                        onclick="addPromotionalGift('<?php echo $rule->getId() ?>','<?php echo $product->getId() ?>');">
+                                                <span>
+                                                    <span><?php echo $this->__('Add To Cart') ?></span>
+                                                </span>
+                                    </button>
+                                </div>
+                            </div>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        </div>
+
+        <?php foreach ($items as $item): ?>
+            <?php $product = Mage::getModel('catalog/product')->load($item['product_id']); ?>
+            <div id="sgift_information_<?php echo $product->getId() ?>" class="sgift-tootip"
+                 style="visibility: visible;">
+                <div class="stootip-title">
+                    <div class="stootip-head">
+                        <div class="stootip-head-title"><?php echo $this->__('Promotional Gift') ?></div>
+                    </div>
+                </div>
+                <div class="stootip-content">
+                    <div class="stootip-product-name"><?php echo $product->getName() ?></div>
+                    <div
+                        class="stootip-product-qty"><?php echo $this->__('Qty: %s', $this->getQtyProductRule($product, $rule)) ?></div>
+                    <div class="stootip-rule-name"><?php echo $rule->getName() ?></div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                var giftTootip_<?php echo $product->getId() ?> = new Tooltip('promotional_image_<?php echo $product->getId() ?>', 'sgift_information_<?php echo $product->getId() ?>');
+            </script>
+        <?php endforeach; ?>
+        <input type="hidden" id="number_gift_item" value=""/>
+    <?php endif; ?>
+        <?php echo $this->getChildHtml('promotional-banner'); ?>
+    <?php endforeach; ?>
+<?php } ?>

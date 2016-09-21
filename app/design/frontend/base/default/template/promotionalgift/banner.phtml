@@ -1,0 +1,59 @@
+<?php
+/**
+ * Magestore
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Magestore.com license that is
+ * available through the world-wide-web at this URL:
+ * http://www.magestore.com/license-agreement.html
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Magestore
+ * @package     Magestore_Promotionalgift
+ * @copyright   Copyright (c) 2012 Magestore (http://www.magestore.com/)
+ * @license     http://www.magestore.com/license-agreement.html
+ */
+/**
+ * Promotionalgift template
+ *
+ * @see Magestore_Promotionalgift_Block_Banner
+ */
+?>
+<?php
+$helper = Mage::helper('promotionalgift');
+$rule = Mage::helper('promotionalgift/rule')->getShoppingcartRule();
+$controller = Mage::app()->getRequest()->getControllerName();
+$router = Mage::app()->getRequest()->getRouteName();
+
+?>
+<?php if (($router == 'checkout' && Mage::helper('promotionalgift')->showFreeGift() == $controller) || ($helper->showFreeGift() == 'both')): ?>
+    <?php $shoppingcartRules = $this->getListShoppingcartRule() ?>
+    <?php if (isset($shoppingcartRules) && count($shoppingcartRules) > 0): ?>
+        <script type="text/javascript">
+            jQuery(document).ready(function () {
+                jQuery('#rule-banner').jcarousel({
+                    auto: 2,
+                    scroll: 1,
+                    visible: 1,
+                    buttonNextHTML: '',
+                    buttonPrevHTML: '',
+                    wrap: 'last'
+                });
+            });
+        </script>
+        <div class="promotional-srule-container">
+            <div id="wrap">
+                <ul id="rule-banner" class="jcarousel-skin-tango">
+                    <?php foreach ($shoppingcartRules as $rule): ?>
+                        <li><?php echo $this->getRuleName($rule->getName()) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        </div>
+    <?php endif; ?>
+<?php endif; ?>

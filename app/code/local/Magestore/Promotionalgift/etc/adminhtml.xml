@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Magestore
+ * 
+ * NOTICE OF LICENSE
+ * 
+ * This source file is subject to the Magestore.com license that is
+ * available through the world-wide-web at this URL:
+ * http://www.magestore.com/license-agreement.html
+ * 
+ * DISCLAIMER
+ * 
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ * 
+ * @category    Magestore
+ * @package     Magestore_Promotionalgift
+ * @copyright   Copyright (c) 2012 Magestore (http://www.magestore.com/)
+ * @license     http://www.magestore.com/license-agreement.html
+ */
+-->
+<config>
+    <menu>
+        <promo>
+            <children>
+                <promotionalgift module="promotionalgift" translate="title">
+                    <title>Promotional Gift</title>
+                    <sort_order>500</sort_order>
+                    <children>
+                        <catalogrule module="promotionalgift" translate="title">
+                            <title>Catalog Rules</title>
+                            <sort_order>0</sort_order>
+                            <action>adminhtml/promotionalgift_catalogrule</action>
+                        </catalogrule>
+                        <shoppingcartrule module="promotionalgift" translate="title">
+                            <title>Shopping Cart Rules</title>
+                            <sort_order>5</sort_order>
+                            <action>adminhtml/promotionalgift_shoppingcartrule</action>
+                        </shoppingcartrule>
+                        <banner module="promotionalgift" translate="title">
+                            <title>Manage Ads</title>
+                            <sort_order>6</sort_order>
+                            <action>adminhtml/promotionalgift_banner</action>
+                        </banner>
+                        <report module="promotionalgift" translate="title">
+                            <title>Reports</title>
+                            <sort_order>20</sort_order>
+                            <children>
+                                <reportorder module="promotionalgift" translate="title">
+                                    <title>Order Report</title>
+                                    <sort_order>10</sort_order>
+                                    <action>adminhtml/promotionalgift_reportcartrule</action>
+                                </reportorder>
+                                <dashboard module="promotionalgift" translate="title">
+                                    <title>Chart Report</title>
+                                    <sort_order>15</sort_order>
+                                    <action>adminhtml/promotionalgift_reportcartrule/dashboard</action>
+                                </dashboard>
+                            </children>
+                        </report>
+                        <settings module="promotionalgift" translate="title">
+                            <title>Settings</title>
+                            <sort_order>1000</sort_order>
+                            <action>adminhtml/system_config/edit/section/promotionalgift</action>
+                        </settings>
+                    </children>
+                </promotionalgift>
+            </children>
+        </promo>
+    </menu>
+    <acl>
+        <resources>
+            <all>
+                <title>Allow Everything</title>
+            </all>
+            <admin>
+                <children>
+                    <system>
+                        <children>
+                            <config>
+                                <children>
+                                    <promotionalgift module="promotionalgift" translate="title">
+                                        <title>Promotionalgift</title>
+                                        <sort_order>71</sort_order>
+                                    </promotionalgift>
+                                </children>
+                            </config>
+                        </children>
+                    </system>
+                    <promo>
+                        <children>
+                            <promotionalgift module="promotionalgift" translate="title">
+                                <title>Promotional Gift</title>
+                                <sort_order>500</sort_order>
+                                <children>
+                                    <catalogrule module="promotionalgift" translate="title">
+                                        <title>Catalog Rules</title>
+                                        <sort_order>0</sort_order>
+                                    </catalogrule>
+                                    <shoppingcartrule module="promotionalgift" translate="title">
+                                        <title>Shopping Cart Rules</title>
+                                        <sort_order>5</sort_order>
+                                    </shoppingcartrule>
+                                    <banner module="promotionalgift" translate="title">
+                                        <title>Manager Banner</title>
+                                        <sort_order>6</sort_order>
+                                    </banner>
+                                    <report module="promotionalgift" translate="title">
+                                        <title>Reports</title>
+                                        <sort_order>10</sort_order>
+                                        <children>
+                                            <reportorder module="promotionalgift" translate="title">
+                                                <title>Order Report</title>
+                                                <sort_order>10</sort_order>
+                                            </reportorder>
+                                            <dashboard module="promotionalgift" translate="title">
+                                                <title>Chart Report</title>
+                                                <sort_order>15</sort_order>
+                                            </dashboard>
+                                        </children>
+                                    </report>
+                                    <settings module="promotionalgift" translate="title">
+                                        <title>Settings</title>
+                                        <sort_order>1000</sort_order>
+                                    </settings>
+                                </children>
+                            </promotionalgift>
+                        </children>
+                    </promo>
+                </children>
+            </admin>
+        </resources>
+    </acl>
+</config>

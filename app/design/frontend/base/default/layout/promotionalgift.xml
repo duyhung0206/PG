@@ -1,0 +1,913 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Magestore
+ * 
+ * NOTICE OF LICENSE
+ * 
+ * This source file is subject to the Magestore.com license that is
+ * available through the world-wide-web at this URL:
+ * http://www.magestore.com/license-agreement.html
+ * 
+ * DISCLAIMER
+ * 
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ * 
+ * @category    Magestore
+ * @package     Magestore_Promotionalgift
+ * @copyright   Copyright (c) 2012 Magestore (http://www.magestore.com/)
+ * @license     http://www.magestore.com/license-agreement.html
+ */
+-->
+<layout version="0.1.0">
+    <default>
+        <reference name="top.links">
+            <block type="promotionalgift/toplink" name="promotionalgift-toplink"/>
+        </reference>
+        <reference name="head">
+        </reference>
+    </default>
+    <onestepcheckout_index_index>
+        <reference name="head">
+            <action method="addJs">
+                <script>magestore/promotionalgift/tooltip/tooltipCE1.9Onestep.js</script>
+            </action>
+            <action method="addJs">
+                <script>magestore/promotionalgift/jcarousel/jquery-1.4.2.min.js</script>
+            </action>
+            <action method="addJs">
+                <script>magestore/promotionalgift/jcarousel/jquery.jcarousel.min.js</script>
+            </action>
+            <action method="addJs">
+                <script>magestore/promotionalcartpage.js</script>
+            </action>
+            <action method="addCss">
+                <stylesheet>css/magestore/jcarousel.css</stylesheet>
+            </action>
+            <action method="addCss">
+                <stylesheet>css/magestore/promotionalgift.css</stylesheet>
+            </action>
+            <action method="addCss">
+                <stylesheet>css/magestore/promotionalcart/style.css</stylesheet>
+            </action>
+        </reference>
+        <remove name="ajaxcart-default"/>
+        <reference name="content">
+            <block type="promotionalgift/banner" name="promotional-banner" before="-"/>
+        </reference>
+        <reference name="before_body_end">
+            <block type="promotionalgift/js" name="promotionalgift.jquery.conflict" after="-"
+                   template="promotionalgift/js.phtml"/>
+        </reference>
+    </onestepcheckout_index_index>
+
+    <onestepcheckout_index_index>
+        <reference name="review_info">
+            <action method="addItemRender">
+                <type>default</type>
+                <block>promotionalgift/cart_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>grouped</type>
+                <block>promotionalgift/cart_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>downloadable</type>
+                <block>promotionalgift/cart_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>virtual</type>
+                <block>promotionalgift/cart_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>configurable</type>
+                <block>promotionalgift/cart_configurable_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>bundle</type>
+                <block>promotionalgift/cart_bundle_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>giftvoucher</type>
+                <block>promotionalgift/cart_giftvoucher_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+        </reference>
+    </onestepcheckout_index_index>
+
+    <onestepcheckout_onestepcheckout_review>
+        <reference name="review">
+            <action method="addItemRender">
+                <type>default</type>
+                <block>promotionalgift/cart_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>grouped</type>
+                <block>promotionalgift/cart_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>downloadable</type>
+                <block>promotionalgift/cart_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>virtual</type>
+                <block>promotionalgift/cart_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>configurable</type>
+                <block>promotionalgift/cart_configurable_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>bundle</type>
+                <block>promotionalgift/cart_bundle_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>giftvoucher</type>
+                <block>promotionalgift/cart_giftvoucher_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+        </reference>
+    </onestepcheckout_onestepcheckout_review>
+
+    <onestepcheckout_index_save_shipping>
+        <reference name="onestepcheckout_review">
+            <action method="addItemRender">
+                <type>default</type>
+                <block>promotionalgift/cart_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>grouped</type>
+                <block>promotionalgift/cart_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>downloadable</type>
+                <block>promotionalgift/cart_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>virtual</type>
+                <block>promotionalgift/cart_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>configurable</type>
+                <block>promotionalgift/cart_configurable_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>bundle</type>
+                <block>promotionalgift/cart_bundle_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>giftvoucher</type>
+                <block>promotionalgift/cart_giftvoucher_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+        </reference>
+    </onestepcheckout_index_save_shipping>
+
+    <onestepcheckout_index_saveaddressonestepcheckout>
+        <reference name="onestepcheckout_review">
+            <action method="addItemRender">
+                <type>default</type>
+                <block>promotionalgift/cart_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>grouped</type>
+                <block>promotionalgift/cart_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>downloadable</type>
+                <block>promotionalgift/cart_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>virtual</type>
+                <block>promotionalgift/cart_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>configurable</type>
+                <block>promotionalgift/cart_configurable_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>bundle</type>
+                <block>promotionalgift/cart_bundle_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>giftvoucher</type>
+                <block>promotionalgift/cart_giftvoucher_item</block>
+                <template>onestepcheckout/onestepcheckout/review/item.phtml</template>
+            </action>
+        </reference>
+    </onestepcheckout_index_saveaddressonestepcheckout>
+
+    <onestepcheckout_index_index>
+        <reference name="after_body_start">
+            <block type="promotionalgift/ajaxcart" name="ajaxcart-promotionalgift" before="-"/>
+        </reference>
+    </onestepcheckout_index_index>
+
+    <onestepcheckout_admin_index>
+        <remove name="top.links"/>
+        <reference name="head">
+            <action method="addJs">
+                <script>magestore/promotionalgift/tooltip/tooltip.js</script>
+            </action>
+            <action method="addJs">
+                <script>magestore/promotionalcartpage.js</script>
+            </action>
+            <action method="addJs">
+                <script>magestore/promotionalgift/jcarousel/jquery-1.4.2.min.js</script>
+            </action>
+            <action method="addJs">
+                <script>magestore/promotionalgift/jcarousel/jquery.jcarousel.min.js</script>
+            </action>
+            <action method="addCss">
+                <stylesheet>css/magestore/jcarousel.css</stylesheet>
+            </action>
+            <action method="addCss">
+                <stylesheet>css/magestore/promotionalgift.css</stylesheet>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="promotionalgift/shoppingcart" name="promotionalgift.shoppingcart" before="-"
+                   template="promotionalgift/shoppingcartpos.phtml">
+            </block>
+        </reference>
+        <remove name="ajaxcart-default"/>
+        <reference name="before_body_end">
+            <block type="promotionalgift/js" name="promotionalgift.jquery.conflict" after="-"
+                   template="promotionalgift/js.phtml"/>
+        </reference>
+    </onestepcheckout_admin_index>
+
+    <!-- End for one step -->
+
+    <promotionalgift_index_index>
+        <reference name="root">
+            <action method="setTemplate">
+                <template>page/3columns.phtml</template>
+            </action>
+        </reference>
+        <reference name="head">
+            <action method="addJs">
+                <script>magestore/promotionalgift/tooltip/tooltip.js</script>
+            </action>
+            <action method="addCss">
+                <stylesheet>css/magestore/promotionalgift.css</stylesheet>
+            </action>
+            <action method="addCss">
+                <stylesheet>css/magestore/jcarousel.css</stylesheet>
+            </action>
+            <action method="addItem">
+                <type>js_css</type>
+                <name>calendar/calendar-win2k-1.css</name>
+                <params/>
+            </action>
+            <action method="addItem">
+                <type>js</type>
+                <name>calendar/calendar.js</name>
+            </action>
+            <action method="addJs">
+                <script>magestore/promotionalgift/jcarousel/jquery-1.4.2.min.js</script>
+            </action>
+            <action method="addJs">
+                <script>magestore/promotionalgift/jcarousel/jquery.jcarousel.min.js</script>
+            </action>
+            <action method="addCss">
+                <stylesheet>css/magestore/promotionalgift/owl.carousel.css</stylesheet>
+            </action>
+            <action method="addCss">
+                <stylesheet>css/magestore/promotionalgift/owl.theme.css</stylesheet>
+            </action>
+            <action method="addItem">
+                <type>js</type>
+                <name>calendar/calendar-setup.js</name>
+            </action>
+            <block type="core/html_calendar" name="html_calendar" as="html_calendar" template="page/js/calendar.phtml"/>
+        </reference>
+        <reference name="left_first">
+            <block type="promotionalgift/layer_catalogproductlayer" name="promotionalgift.leftnav" before="-"
+                   template="catalog/layer/view.phtml">
+                <block type="core/text_list" name="catalog.leftnav.state.renderers" as="state_renderers"/>
+            </block>
+        </reference>
+        <reference name="content">
+            <block type="core/template" template = "promotionalgift/carouseljs.phtml"/>
+            <block type="promotionalgift/promotionalgiftcatalog" name="promotionalgift"
+                   template="promotionalgift/promotionalgift.phtml">
+                <block type="catalog/product_list_toolbar" name="product_list_toolbar"
+                       template="catalog/product/list/toolbar.phtml">
+                    <block type="page/html_pager" name="product_list_toolbar_pager"/>
+                </block>
+                <action method="setToolbarBlockName">
+                    <name>product_list_toolbar</name>
+                </action>
+            </block>
+        </reference>
+    </promotionalgift_index_index>
+
+    <!-- promotional search page-->
+    <promotionalgift_index_search>
+        <reference name="root">
+            <action method="setTemplate">
+                <template>page/3columns.phtml</template>
+            </action>
+        </reference>
+        <reference name="head">
+            <action method="addJs">
+                <script>magestore/promotionalgift/tooltip/tooltip.js</script>
+            </action>
+            <action method="addCss">
+                <stylesheet>css/magestore/promotionalgift.css</stylesheet>
+            </action>
+            <!--action method="addJs">
+                <script>magestore/promotionalgift/jcarousel/jquery-1.4.2.min.js</script>
+            </action> 
+            <action method="addJs">
+                <script>magestore/promotionalgift/jcarousel/jquery.jcarousel.min.js</script>
+            </action-->
+            <action method="addCss">
+                <stylesheet>css/magestore/jcarousel.css</stylesheet>
+            </action>
+            <action method="addItem">
+                <type>js_css</type>
+                <name>calendar/calendar-win2k-1.css</name>
+                <params/>
+            </action>
+            <action method="addItem">
+                <type>js</type>
+                <name>calendar/calendar.js</name>
+            </action>
+            <action method="addItem">
+                <type>js</type>
+                <name>calendar/calendar-setup.js</name>
+            </action>
+            <block type="core/html_calendar" name="html_calendar" as="html_calendar" template="page/js/calendar.phtml"/>
+        </reference>
+        <reference name="left_first">
+            <block type="promotionalgift/layer_catalogproductlayer" name="promotionalgift.leftnav" before="-"
+                   template="catalog/layer/view.phtml">
+                <block type="core/text_list" name="catalog.leftnav.state.renderers" as="state_renderers"/>
+            </block>
+        </reference>
+        <reference name="content">
+            <block type="promotionalgift/promotionalgiftcatalog" name="promotionalgift"
+                   template="promotionalgift/search.phtml">
+            </block>
+        </reference>
+        <reference name="before_body_end">
+            <block type="promotionalgift/js" name="promotionalgift.jquery.conflict" after="-"
+                   template="promotionalgift/js.phtml"/>
+        </reference>
+    </promotionalgift_index_search>
+
+    <!-- promotional show catalog rule-->
+    <promotionalgift_index_showcatalogrule>
+        <reference name="root">
+            <action method="setTemplate">
+                <template>page/3columns.phtml</template>
+            </action>
+        </reference>
+        <reference name="head">
+            <action method="addJs">
+                <script>magestore/promotionalgift/tooltip/tooltip.js</script>
+            </action>
+            <action method="addCss">
+                <stylesheet>css/magestore/promotionalgift.css</stylesheet>
+            </action>
+        </reference>
+        <reference name="left_first">
+            <block type="promotionalgift/layer_catalogproductlayer" name="promotionalgift.leftnav" before="-"
+                   template="catalog/layer/view.phtml">
+                <block type="core/text_list" name="catalog.leftnav.state.renderers" as="state_renderers"/>
+            </block>
+        </reference>
+        <reference name="content">
+            <block type="promotionalgift/promotionalgiftcatalog" name="promotionalgift"
+                   template="promotionalgift/catalogruleview.phtml">
+                <block type="catalog/product_list_toolbar" name="product_list_toolbar"
+                       template="catalog/product/list/toolbar.phtml">
+                    <block type="page/html_pager" name="product_list_toolbar_pager"/>
+                </block>
+                <action method="setToolbarBlockName">
+                    <name>product_list_toolbar</name>
+                </action>
+            </block>
+        </reference>
+    </promotionalgift_index_showcatalogrule>
+    <!-- promotional shopping cart-->
+    <checkout_cart_index>
+        <reference name="head">
+            <action method="addJs">
+                <script>magestore/promotionalgift/tooltip/tooltip.js</script>
+            </action>
+            <action method="addJs">
+                <script>magestore/promotionalgift/jcarousel/jquery-1.4.2.min.js</script>
+            </action>
+            <action method="addJs">
+                <script>magestore/promotionalcartpage.js</script>
+            </action>
+            <action method="addJs">
+                <script>lib/flex.js</script>
+            </action>
+            <action method="addJs">
+                <script>mage/adminhtml/flexuploader.js</script>
+            </action>
+            <action method="addJs">
+                <script>lib/FABridge.js</script>
+            </action>
+            <action method="addItem">
+                <type>js</type>
+                <name>calendar/calendar.js</name>
+            </action>
+            <action method="addItem">
+                <type>js</type>
+                <name>calendar/calendar-setup.js</name>
+            </action>
+            <action method="addCss">
+                <stylesheet>css/magestore/promotionalgift/owl.carousel.css</stylesheet>
+            </action>
+            <action method="addCss">
+                <stylesheet>css/magestore/promotionalgift/owl.theme.css</stylesheet>
+            </action>
+            <action method="addItem">
+                <type>js_css</type>
+                <name>calendar/calendar-win2k-1.css</name>
+                <params/>
+            </action>
+            <action method="addCss" before="-">
+                <stylesheet>css/magestore/bootstrap.css</stylesheet>
+            </action>
+            <action method="addCss">
+                <stylesheet>css/magestore/promotionalgift.css</stylesheet>
+            </action>
+            <action method="addCss">
+                <stylesheet>css/magestore/promotionalcart/style.css</stylesheet>
+            </action>
+
+            <action method="addItem"><type>skin_js</type><name>js/bootstrap.js</name><params/></action>
+        </reference>
+        <remove name="ajaxcart-default"/>
+        <reference name="content">
+            <block type="promotionalgift/cmsbanner" name="promotionalgift.cms.banner" before="-"/>
+        </reference>
+        <reference name="checkout.cart.form.before">
+            <block type="core/template" after="checkout.cart.form.before" name="shoppingcartrule_catalogrule"
+                   template="promotionalgift/shoppingcartruleandcatalogrule.phtml">
+                <block type="promotionalgift/shoppingcartcategory" name="promotionalgift.shoppingcartcategory"
+                       template="promotionalgift/shoppingcartcategory.phtml">
+                    <block type="promotionalgift/banner" name="promotional-banner"/>
+                </block>
+                <block type="promotionalgift/shoppingcart" name="promotionalgift.shoppingcart">
+                    <block type="promotionalgift/banner" name="promotional-banner"/>
+                </block>
+            </block>
+        </reference>
+        <reference name="before_body_end">
+            <block type="promotionalgift/js" name="promotionalgift.jquery.conflict" after="-"
+                   template="promotionalgift/js.phtml"/>
+            <block type="core/template" name="promotionalgift.library.owl.carousel.js" after="-"
+                   template="promotionalgift/carouseljs.phtml"/>
+            <block type="core/template" name="popup.slide.promotion" after="-"
+                   template="promotionalgift/popupslide.phtml">
+                <block type="core/template" after="checkout.cart.form.before" name="shoppingcartrule_catalogrule"
+                       template="promotionalgift/shoppingcartruleandcatalogrule.phtml">
+                    <block type="promotionalgift/shoppingcartcategory" name="promotionalgift.shoppingcartcategory"
+                           template="promotionalgift/shoppingcartcategory.phtml">
+                        <block type="promotionalgift/banner" name="promotional-banner"/>
+                    </block>
+                    <block type="promotionalgift/shoppingcart" name="promotionalgift.shoppingcart">
+                        <block type="promotionalgift/banner" name="promotional-banner"/>
+                    </block>
+                </block>
+            </block>
+        </reference>
+        <reference name="checkout.cart">
+            <action method="addItemRender">
+                <type>simple</type>
+                <block>promotionalgift/cart_item</block>
+                <template>checkout/cart/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>grouped</type>
+                <block>promotionalgift/cart_item</block>
+                <template>checkout/cart/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>downloadable</type>
+                <block>promotionalgift/cart_item</block>
+                <template>checkout/cart/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>virtual</type>
+                <block>promotionalgift/cart_item</block>
+                <template>checkout/cart/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>configurable</type>
+                <block>promotionalgift/cart_configurable_item</block>
+                <template>checkout/cart/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>bundle</type>
+                <block>promotionalgift/cart_bundle_item</block>
+                <template>checkout/cart/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>giftvoucher</type>
+                <block>promotionalgift/cart_giftvoucher_item</block>
+                <template>checkout/cart/item/default.phtml</template>
+            </action>
+        </reference>
+        <reference name="after_body_start">
+            <block type="promotionalgift/ajaxcart" name="ajaxcart-promotionalgift" before="-"/>
+        </reference>
+    </checkout_cart_index>
+
+    <!-- Sales banner checkout  -->
+    <checkout_onepage_index>
+        <reference name="head">
+            <action method="addJs">
+                <script>magestore/promotionalgift/tooltip/tooltip.js</script>
+            </action>
+            <action method="addJs">
+                <script>magestore/promotionalgift/jcarousel/jquery-1.4.2.min.js</script>
+            </action>
+            <action method="addCss" before="-">
+                <stylesheet>css/magestore/bootstrap.css</stylesheet>
+            </action>
+            <action method="addItem"><type>skin_js</type><name>js/bootstrap.js</name><params/></action>
+            <action method="addJs">
+                <script>magestore/promotionalcartpage.js</script>
+            </action>
+            <action method="addCss">
+                <stylesheet>css/magestore/promotionalgift/owl.carousel.css</stylesheet>
+            </action>
+            <action method="addCss">
+                <stylesheet>css/magestore/promotionalgift/owl.theme.css</stylesheet>
+            </action>
+            <action method="addCss">
+                <stylesheet>css/magestore/promotionalgift.css</stylesheet>
+            </action>
+        </reference>
+        <remove name="ajaxcart-default"/>
+        <reference name="content">
+            <block type="promotionalgift/cmsbanner" name="promotionalgift.cms.banner" before="-"/>
+            <block type="core/template" after="promotionalgift.cms.banner" name="shoppingcartrule_catalogrule"
+                   template="promotionalgift/shoppingcartruleandcatalogrule.phtml">
+                <block type="promotionalgift/shoppingcartcategory" name="promotionalgift.shoppingcartcategory.checkout"
+                       before="promotional-banner"
+                       template="promotionalgift/shoppingcartcategory.phtml">
+                    <block type="promotionalgift/banner" name="promotional-banner"/>
+                </block>
+                <block type="promotionalgift/banner" name="promotional-banner"
+                       after="promotionalgift.shoppingcartcategory.checkout"/>
+            </block>
+        </reference>
+        <reference name="before_body_end">
+            <block type="promotionalgift/js" name="promotionalgift.jquery.conflict" after="-"
+                   template="promotionalgift/js.phtml"/>
+            <block type="core/template" name="promotionalgift.library.owl.carousel.js" after="-"
+                   template="promotionalgift/carouseljs.phtml"/>
+            <block type="core/template" name="popup.slide.promotion" after="-"
+                   template="promotionalgift/popupslide.phtml">
+                <block type="core/template" after="checkout.cart.form.before" name="shoppingcartrule_catalogrule"
+                       template="promotionalgift/shoppingcartruleandcatalogrule.phtml">
+                    <block type="promotionalgift/shoppingcartcategory" name="promotionalgift.shoppingcartcategory"
+                           template="promotionalgift/shoppingcartcategory.phtml">
+                        <block type="promotionalgift/banner" name="promotional-banner"/>
+                    </block>
+                    <block type="promotionalgift/shoppingcart" name="promotionalgift.shoppingcart">
+                        <block type="promotionalgift/banner" name="promotional-banner"/>
+                    </block>
+                </block>
+            </block>
+        </reference>
+        <reference name="after_body_start">
+            <block type="promotionalgift/ajaxcart" name="ajaxcart-promotionalgift" before="-"/>
+        </reference>
+        <action method="addCss" after="-">
+            <stylesheet>css/magestore/bootstrap.css</stylesheet>
+        </action>
+        <action method="addItem"><type>skin_js</type><name>js/bootstrap.js</name><params/></action>
+    </checkout_onepage_index>
+
+    <checkout_onepage_review>
+        <reference name="root">
+            <action method="addItemRender">
+                <type>simple</type>
+                <block>promotionalgift/cart_item</block>
+                <template>checkout/onepage/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>grouped</type>
+                <block>promotionalgift/cart_item</block>
+                <template>checkout/onepage/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>downloadable</type>
+                <block>promotionalgift/cart_item</block>
+                <template>checkout/cart/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>virtual</type>
+                <block>promotionalgift/cart_item</block>
+                <template>checkout/cart/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>configurable</type>
+                <block>promotionalgift/cart_configurable_item</block>
+                <template>checkout/onepage/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>bundle</type>
+                <block>promotionalgift/cart_bundle_item</block>
+                <template>checkout/onepage/review/item.phtml</template>
+            </action>
+        </reference>
+        <action method="addCss" after="-">
+            <stylesheet>css/magestore/bootstrap.css</stylesheet>
+        </action>
+        <action method="addItem"><type>skin_js</type><name>js/bootstrap.js</name><params/></action>
+    </checkout_onepage_review>
+
+    <checkout_multishipping_addresses>
+        <reference name="checkout_addresses">
+            <action method="addItemRender">
+                <type>simple</type>
+                <block>promotionalgift/cart_item</block>
+                <template>checkout/multishipping/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>grouped</type>
+                <block>promotionalgift/cart_item</block>
+                <template>checkout/multishipping/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>downloadable</type>
+                <block>promotionalgift/cart_item</block>
+                <template>checkout/cart/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>virtual</type>
+                <block>promotionalgift/cart_item</block>
+                <template>checkout/cart/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>configurable</type>
+                <block>promotionalgift/cart_configurable_item</block>
+                <template>checkout/multishipping/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>bundle</type>
+                <block>promotionalgift/cart_bundle_item</block>
+                <template>checkout/multishipping/item/default.phtml</template>
+            </action>
+        </reference>
+        <action method="addCss" after="-">
+            <stylesheet>css/magestore/bootstrap.css</stylesheet>
+        </action>
+        <action method="addItem"><type>skin_js</type><name>js/bootstrap.js</name><params/></action>
+    </checkout_multishipping_addresses>
+
+    <checkout_multishipping_shipping>
+        <reference name="checkout_shipping">
+            <action method="addItemRender">
+                <type>simple</type>
+                <block>promotionalgift/cart_item</block>
+                <template>checkout/multishipping/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>grouped</type>
+                <block>promotionalgift/cart_item</block>
+                <template>checkout/multishipping/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>downloadable</type>
+                <block>promotionalgift/cart_item</block>
+                <template>checkout/cart/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>virtual</type>
+                <block>promotionalgift/cart_item</block>
+                <template>checkout/cart/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>configurable</type>
+                <block>promotionalgift/cart_configurable_item</block>
+                <template>checkout/multishipping/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>bundle</type>
+                <block>promotionalgift/cart_bundle_item</block>
+                <template>checkout/multishipping/item/default.phtml</template>
+            </action>
+        </reference>
+        <reference name="checkout_billing_items">
+            <action method="addItemRender">
+                <type>simple</type>
+                <block>promotionalgift/cart_item</block>
+                <template>checkout/multishipping/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>grouped</type>
+                <block>promotionalgift/cart_item</block>
+                <template>checkout/multishipping/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>downloadable</type>
+                <block>promotionalgift/cart_item</block>
+                <template>checkout/cart/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>virtual</type>
+                <block>promotionalgift/cart_item</block>
+                <template>checkout/cart/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>configurable</type>
+                <block>promotionalgift/cart_configurable_item</block>
+                <template>checkout/multishipping/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>bundle</type>
+                <block>promotionalgift/cart_bundle_item</block>
+                <template>checkout/multishipping/item/default.phtml</template>
+            </action>
+        </reference>
+        <action method="addCss" after="-">
+            <stylesheet>css/magestore/bootstrap.css</stylesheet>
+        </action>
+        <action method="addItem"><type>skin_js</type><name>js/bootstrap.js</name><params/></action>
+    </checkout_multishipping_shipping>
+
+    <checkout_multishipping_overview>
+        <reference name="checkout_overview">
+            <action method="addItemRender">
+                <type>simple</type>
+                <block>promotionalgift/cart_item</block>
+                <template>checkout/multishipping/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>grouped</type>
+                <block>promotionalgift/cart_item</block>
+                <template>checkout/multishipping/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>downloadable</type>
+                <block>promotionalgift/cart_item</block>
+                <template>checkout/cart/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>virtual</type>
+                <block>promotionalgift/cart_item</block>
+                <template>checkout/cart/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>configurable</type>
+                <block>promotionalgift/cart_configurable_item</block>
+                <template>checkout/multishipping/item/default.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>bundle</type>
+                <block>promotionalgift/cart_bundle_item</block>
+                <template>checkout/multishipping/item/default.phtml</template>
+            </action>
+        </reference>
+        <action method="addCss" after="-">
+            <stylesheet>css/magestore/bootstrap.css</stylesheet>
+        </action>
+        <action method="addItem"><type>skin_js</type><name>js/bootstrap.js</name><params/></action>
+    </checkout_multishipping_overview>
+    <catalog_product_view>
+        <reference name="head">
+            <action method="addJs">
+                <script>magestore/promotionalgift/tooltip/tooltip.js</script>
+            </action>
+            <action method="addCss" after="-">
+                <stylesheet>css/magestore/bootstrap.css</stylesheet>
+            </action>
+            <action method="addCss">
+                <stylesheet>css/magestore/promotionalgift.css</stylesheet>
+            </action>
+            <action method="addItem"><type>skin_js</type><name>js/bootstrap.js</name><params/></action>
+        </reference>
+        <reference name="product.info">
+            <block type="promotionalgift/category_productgift_freegift" as="other" name="freegift"
+                   template="promotionalgift/category/productgift/freegift.phtml"/>
+        </reference>
+    </catalog_product_view>
+
+    <!-- Show promotional gift on category and search page-->
+    <catalog_category_default>
+        <reference name="head">
+            <action method="addJs">
+                <script>magestore/promotionalgift/tooltip/tooltip.js</script>
+            </action>
+            <action method="addCss">
+                <stylesheet>css/magestore/promotionalgift.css</stylesheet>
+            </action>
+        </reference>
+        <reference name="before_body_end">
+            <block type="promotionalgift/promotionalcatalogpage" name="promotionalgift.product" after="-"
+                   template="promotionalgift/product.phtml"/>
+        </reference>
+    </catalog_category_default>
+    <catalog_category_layered>
+        <reference name="head">
+            <action method="addJs">
+                <script>magestore/promotionalgift/tooltip/tooltip.js</script>
+            </action>
+            <action method="addCss">
+                <stylesheet>css/magestore/promotionalgift.css</stylesheet>
+            </action>
+        </reference>
+        <reference name="before_body_end">
+            <block type="promotionalgift/promotionalcatalogpage" name="promotionalgift.product" after="-"
+                   template="promotionalgift/product.phtml"/>
+        </reference>
+    </catalog_category_layered>
+    <catalogsearch_result_index>
+        <reference name="head">
+            <action method="addJs">
+                <script>magestore/promotionalgift/tooltip/tooltip.js</script>
+            </action>
+            <action method="addCss">
+                <stylesheet>css/magestore/promotionalgift.css</stylesheet>
+            </action>
+        </reference>
+        <reference name="before_body_end">
+            <block type="promotionalgift/promotionalcatalogpage" name="promotionalgift.product" after="-"
+                   template="promotionalgift/product.phtml"/>
+        </reference>
+    </catalogsearch_result_index>
+    <!-- end Show promotional gift on category and search page-->
+    <!-- with WebPOS -->
+    <webpos_index_index>
+        <remove name="top.links"/>
+        <reference name="head">
+            <action method="addJs">
+                <script>magestore/promotionalgift/tooltip/tooltip.js</script>
+            </action>
+            <action method="addJs">
+                <script>magestore/promotionalcartpage.js</script>
+            </action>
+            <action method="addJs">
+                <script>magestore/promotionalgift/jcarousel/jquery-1.4.2.min.js</script>
+            </action>
+            <action method="addJs">
+                <script>magestore/promotionalgift/jcarousel/jquery.jcarousel.min.js</script>
+            </action>
+            <action method="addCss">
+                <stylesheet>css/magestore/jcarousel.css</stylesheet>
+            </action>
+            <action method="addCss">
+                <stylesheet>css/magestore/promotionalgift.css</stylesheet>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="promotionalgift/shoppingcart" name="promotionalgift.shoppingcart" before="-"
+                   template="promotionalgift/shoppingcartpos.phtml">
+            </block>
+        </reference>
+        <remove name="ajaxcart-default"/>
+        <reference name="before_body_end">
+            <block type="promotionalgift/js" name="promotionalgift.jquery.conflict" after="-"
+                   template="promotionalgift/js.phtml"/>
+        </reference>
+    </webpos_index_index>
+
+    <promotionalgift_index_updatepromotionalpos>
+        <block type="promotionalgift/shoppingcart" output="toHtml" name="promotionalgift.reload"
+               template="promotionalgift/reload.phtml">
+            <block type="promotionalgift/shoppingcart" name="promotionalgift_shoppingcart"
+                   as="promotionalgift_shoppingcart" template="promotionalgift/shoppingcartposupdate.phtml">
+                <block type="promotionalgift/banner" name="promotional-banner"
+                       template="promotionalgift/banner.phtml"/>
+            </block>
+        </block>
+    </promotionalgift_index_updatepromotionalpos>
+
+</layout>

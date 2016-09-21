@@ -1,0 +1,240 @@
+<?php
+/**
+ * Magestore
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Magestore.com license that is
+ * available through the world-wide-web at this URL:
+ * http://www.magestore.com/license-agreement.html
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Magestore
+ * @package     Magestore_Promotionalgift
+ * @copyright   Copyright (c) 2012 Magestore (http://www.magestore.com/)
+ * @license     http://www.magestore.com/license-agreement.html
+ */
+/**
+ * Promotionalgift template
+ *
+ * @see Magestore_Promotionalgift_Block_Shoppingcart
+ */
+?>
+    <style>
+        .products-grid .actions {
+            position: relative !important;
+        }
+    </style>
+<?php
+$_productCollection = $this->getLoadedProductCollection();
+$_helper = $this->helper('catalog/output');
+$catalogRuleId = $this->getRequest()->getParam('catalogrule');
+$icon_image = Mage::helper('promotionalgift')->getPromotionalIcon();
+$iconUrl = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA) . 'promotionalgift/giftlabel/' . $icon_image;
+$rule = Mage::getModel('promotionalgift/catalogrule')->load($catalogRuleId);
+?>
+    <div class="page-title category-title crule-title">
+        <h1><?php echo $this->__($rule->getName()); ?></h1>
+    </div>
+    <div>
+        <?php
+        if ($rule->getFromDate()) {
+            echo '<span style="font-style:italic;padding-left:30px">' . $this->__('Start Date: ' . date('M d, Y', strtotime($rule->getFromDate())) . '.' . '</span>');
+        } else {
+            echo '<span>' . $this->__('') . '</span>';
+        }
+        ?>
+
+        <?php
+        if ($rule->getToDate()) {
+            if ($rule->getFromDate())
+                echo '<br/><span style="font-style:italic;padding-left:30px">' . $this->__('End Date: ' . date('M d, Y', strtotime($rule->getToDate())) . '.' . '</span><br/>');
+            else
+                echo '<span style="font-style:italic;padding-left:30px">' . $this->__('End Date: ' . date('M d, Y', strtotime($rule->getToDate())) . '.' . '</span><br/>');
+        } else {
+            echo '<span>' . $this->__('') . '</span>';
+        }
+        ?>
+        <br/>
+    <span style="font-style:italic;padding-left:30px">
+        <?php
+        echo $this->__('Description: ' . $rule->getDescription());
+        ?>
+    </span>
+        <br/>
+    <span style="font-style:italic;padding-left:30px">
+        <?php
+        echo $this->__('Calendar: ' . Mage::helper('promotionalgift')->getCalendarInformation($rule));
+        ?>
+    </span>
+    </div>
+<?php if (!count($_productCollection)): ?>
+    <p class="note-msg"><?php echo $this->__('There are no products matching the selection.') ?></p>
+<?php else: ?>
+    <div class="category-products">
+        <?php echo $this->getToolbarHtml() ?>
+        <?php // Grid Mode   ?>
+
+        <?php $_collectionSize = count($_productCollection); ?>
+        <?php $_columnCount = $this->getColumnCount(); ?>
+        <?php
+        $i = 0;
+        foreach ($_productCollection as $_product):
+            ?>
+
+            <?php if ($i++ % $_columnCount == 0): ?>
+            <ul class="products-grid">
+        <?php endif ?>
+            <?php $catalogRule = $this->getRuleByPruduct($_product->getId()) ?>
+            <?php if ($catalogRule): ?>
+            <?php
+            if ($catalogRule->getImage()) {
+                $showGiftLabel = Mage::getStoreConfig('promotionalgift/general/showgiftlabel', Mage::app()->getStore()->getId());
+                if ($showGiftLabel) {
+                    $icon_image = true;
+                    $iconUrl = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA) . 'promotionalgift/label/' . $catalogRule->getImage();
+                }
+            } else {
+                $icon_image = Mage::helper('promotionalgift')->getPromotionalIcon();
+                $iconUrl = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA) . 'promotionalgift/giftlabel/' . $icon_image;
+            }
+            ?>
+        <?php endif ?>
+            <li class="item<?php if (($i - 1) % $_columnCount == 0): ?> first<?php elseif ($i % $_columnCount == 0): ?> last<?php endif; ?>">
+                <a id="product_<?php echo $_product->getId() ?>" href="<?php echo $_product->getProductUrl() ?>"
+                   title="<?php //echo $this->stripTags($this->getImageLabel($_product, 'small_image'), null, true)
+                   ?>" class="product-image gift-image">
+                    <img
+                        src="<?php echo $this->helper('catalog/image')->init($_product, 'small_image')->resize(135); ?>"
+                        width="135" height="135"
+                        alt="<?php echo $this->stripTags($this->getImageLabel($_product, 'small_image'), null, true) ?>"
+                        />
+                    <?php if (!empty($icon_image)): ?>
+                        <img width="50px;" class="gift-icon" src="<?php echo $iconUrl; ?>">
+                    <?php endif; ?>
+                </a>
+
+                <h2 class="product-name">
+                    <a
+                        href="<?php
+                        if ($product->getData('visibility') != Mage_Catalog_Model_Product_Visibility::VISIBILITY_NOT_VISIBLE) {
+                            echo $product->getProductUrl();
+                        } else {
+                            $parentIds = Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($product->getId());
+                            if ($parentIds) {
+                                $productParentId = $parentIds[0];
+                                $productParentModel = Mage::getModel('catalog/product')->load($productParentId);
+                                if ($productParentModel->getData('visibility') != Mage_Catalog_Model_Product_Visibility::VISIBILITY_NOT_VISIBLE) {
+                                    echo $productParentModel->getProductUrl();
+                                } else {
+                                    echo "#";
+                                }
+                            } else {
+                                echo "#";
+                            }
+                        }
+
+                        ?>"
+                       title="<?php echo $this->stripTags($_product->getName(), null, true) ?>">
+                        <?php echo $_helper->productAttribute($_product, $_product->getName(), 'name') ?>
+                    </a>
+                </h2>
+                <?php if ($_product->getRatingSummary()): ?>
+                    <?php echo $this->getReviewsSummaryHtml($_product, 'short') ?>
+                <?php endif; ?>
+                <?php echo $this->getPriceHtml($_product, true) ?>
+                <div class="actions">
+                    <?php if ($_product->isSaleable()): ?>
+                        <button type="button" title="<?php echo $this->__('Add to Cart') ?>"
+                                class="button btn-cart"
+                                onclick="setLocation('<?php echo $this->getAddToCartUrl($_product) ?>')">
+                                <span>
+                                    <span><?php echo $this->__('Add to Cart') ?></span>
+                                </span>
+                        </button>
+                    <?php else: ?>
+                        <p class="availability out-of-stock"><span><?php echo $this->__('Out of stock') ?></span></p>
+                    <?php endif; ?>
+                    <ul class="add-to-links">
+                        <?php if ($this->helper('wishlist')->isAllow()) : ?>
+                            <li>
+                                <a href="<?php echo $this->helper('wishlist')->getAddUrl($_product) ?>"
+                                   class="link-wishlist">
+                                    <?php echo $this->__('Add to Wishlist') ?>
+                                </a>
+                            </li>
+                        <?php endif; ?>
+                        <?php if ($_compareUrl = $this->getAddToCompareUrl($_product)): ?>
+                            <li>
+                                <span class="separator">|</span>
+                                <a href="<?php echo $_compareUrl ?>"
+                                   class="link-compare"><?php echo $this->__('Add to Compare') ?></a>
+                            </li>
+                        <?php endif; ?>
+                    </ul>
+                </div>
+            </li>
+            <?php if ($i % $_columnCount == 0 || $i == $_collectionSize): ?>
+            </ul>
+        <?php endif; ?>
+        <?php endforeach ?>
+        <script
+            type="text/javascript">decorateGeneric($$('ul.products-grid'), ['odd', 'even', 'first', 'last'])</script>
+        <div class="toolbar-bottom">
+            <?php echo $this->getToolbarHtml() ?>
+        </div>
+    </div>
+    <?php foreach ($_productCollection as $_product): ?>
+        <?php
+        $catalogRule = $this->getRuleByPruduct($_product->getId())
+        ?>
+        <?php if ($catalogRule): ?>
+            <div id="gift_information_<?php echo $_product->getId() ?>" class="gift-tootip"
+                 style="visibility: visible;">
+                <div class="tootip-title">
+                    <?php
+                    if ($catalogRule->getImage()) {
+                        $showGiftLabel = Mage::getStoreConfig('promotionalgift/general/showgiftlabel', Mage::app()->getStore()->getId());
+                        if ($showGiftLabel) {
+                            $icon_image = true;
+                            $iconUrl = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA) . 'promotionalgift/label/' . $catalogRule->getImage();
+                        }
+                    } else {
+                        $icon_image = Mage::helper('promotionalgift')->getPromotionalIcon();
+                        $iconUrl = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA) . 'promotionalgift/giftlabel/' . $icon_image;
+                    }
+                    ?>
+                    <?php if (!empty($icon_image)): ?>
+                        <img width="50px;" class="gift-icon" src="<?php echo $iconUrl; ?>">
+                    <?php endif; ?>
+                    <div class="tootip-head">
+                        <?php $ruleName = $catalogRule->getName(); ?>
+                        <?php $ruleDescription = $catalogRule->getDescription(); ?>
+                        <h3><?php echo $ruleName ?></h3>
+
+                        <div><?php echo $ruleDescription ?></div>
+                    </div>
+                </div>
+                <div class="tootip-content">
+                    <div class="tootip-product-list">
+                        <?php foreach ($this->getFreeGifts($_product->getId()) as $productId): ?>
+                            <?php $giftProduct = Mage::getModel('catalog/product')->load($productId); ?>
+                            <img class="tootip-content-img"
+                                 src="<?php echo $this->helper('catalog/image')->init($giftProduct, 'small_image')->resize(50); ?>"
+                                 width="60" height="60"
+                                 alt="<?php echo $this->stripTags($this->getImageLabel($giftProduct, 'small_image'), null, true) ?>"
+                                />
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+        <script type="text/javascript">
+            var giftTootip_<?php echo $_product->getId() ?> = new Tooltip('product_<?php echo $_product->getId() ?>', 'gift_information_<?php echo $_product->getId() ?>');
+        </script>
+    <?php endforeach; ?>
+<?php endif; ?>

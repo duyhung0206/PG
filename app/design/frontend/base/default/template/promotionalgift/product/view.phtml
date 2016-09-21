@@ -1,0 +1,202 @@
+<?php
+/**
+ * ajaxcart template
+ */
+// die('123');
+?>
+<?php $_helper = Mage::helper('promotionalgift') ?>
+<?php $_product = $this->getProduct(); ?>
+<?php $buttonTitle = Mage::helper('promotionalgift')->__('Add To Cart') ?>
+<?php $configProductUrl = Mage::getUrl('promotionalgift/index/getConfigProduct') ?>
+<script type="text/javascript">
+    var optionsPrice = new Product.OptionsPrice(<?php echo $this->getJsonConfig() ?>);
+</script>
+<a href="#" title="<?php echo $this->__('Close') ?>" class="close-popup" alt="<?php echo $this->__('Close') ?>"
+   onclick="closeAjaxPopup();
+        return false;"><em><?php echo $this->__('Close') ?></em></a>
+<form action="<?php echo $this->getSubmitUrl($_product) ?>" method="post"
+      id="product_addtocart_form"<?php if ($_product->getOptions()): ?> enctype="multipart/form-data"<?php endif; ?>>
+    <?php echo $this->getStartFormHtml() ?>
+    <div class="no-display">
+        <input type="hidden" name="product" value="<?php echo $_product->getId() ?>"/>
+        <input type="hidden" name="related_product" id="related-products-field" value=""/>
+    </div>
+    <?php if ($this->hasOptions()): ?>
+        <?php echo $this->getOptionsWrapperHtml() ?>
+    <?php endif ?>
+    <?php echo $this->getOptionsWrapperBottomHtml() ?>
+    <button type="button" title="<?php echo $buttonTitle ?>" id="promotionalgift_product-addtocart-button"
+            class="btn-cart addgift"><span><span><?php echo $buttonTitle ?></span></span></button>
+    <div style="display: none;" id="outstock-notice" class="outstock-notice">
+        <span> <?php echo $this->__('Out of Stock') ?> </span>
+    </div>
+    <?php echo $this->getEndFormHtml() ?>
+</form>
+<div style="display: none;">
+    <div id="ajaxcart-add-loading" class="ajaxcart-add-loading">
+        <img alt="<?php echo $_label ?>..." src="<?php echo $this->getUrlImage(); ?>"/>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    //<![CDATA[
+    //check form post url
+    if ($('product_addtocart_form').action.indexOf('Checkout') > 0) {
+        reviewActive = 0;
+        is_onestep = 0;
+        $$('.active').each(function (element) {
+            if (element.id == 'opc-review') {
+                reviewActive = 1;
+            }
+        });
+
+        if ($('ajax-review')) {
+            is_onestep = 1;
+            reviewActive = 1;
+        }
+        if (is_onestep == 1) {
+            $('product_addtocart_form').action = $('product_addtocart_form').action + 'is_onestep/' + is_onestep;
+        }
+        if (reviewActive == 1) {
+            $('product_addtocart_form').action = $('product_addtocart_form').action + 'is_review/' + reviewActive;
+        }
+    }
+    <?php if ($_product->getTypeId() == 'configurable'): ?>
+    configProductUrl = '<?php echo $configProductUrl ?>';
+    function getConfigProduct() {
+        var elements = $$('.super-attribute-select');
+        var stringOptions = '';
+        var j = 0;
+        for (var i = 0; i < elements.length; i++) {
+            var element = elements[i];
+            var attributeId = element.id.replace(/[a-z]*/, '');
+            if (element.value) {
+                j++;
+                if (stringOptions == '') {
+                    stringOptions = attributeId + '_' + element.value;
+                } else {
+                    stringOptions = stringOptions + ',' + attributeId + '_' + element.value;
+                }
+            }
+        }
+        if (j == elements.length) {
+            $('promotionalgift_product-addtocart-button').hide();
+            $('outstock-notice').style.display = 'none';
+            $('promotionalgift_product-addtocart-button').parentNode.appendChild(Element.clone($('ajaxcart-add-loading'), 1));
+            var requestProduct = new Ajax.Request(configProductUrl, {
+                method: "post",
+                parameters: {options: stringOptions, product_id: '<?php echo $_product->getId() ?>'},
+                onSuccess: function (xhr) {
+                    if (xhr.responseText.isJSON()) {
+                        var response = xhr.responseText.evalJSON();
+                        if (response.status == 'outstock') {
+                            $('promotionalgift_product-addtocart-button').parentNode.removeChild($('ajaxcart-add-loading'));
+                            $('outstock-notice').style.display = 'block';
+                        } else {
+                            $('promotionalgift_product-addtocart-button').parentNode.removeChild($('ajaxcart-add-loading'));
+                            $('outstock-notice').style.display = 'none';
+                            $('promotionalgift_product-addtocart-button').show();
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+
+    $$('.super-attribute-select').each(
+        function (element) {
+            Event.observe(element, 'change', function () {
+                getConfigProduct();
+            });
+        });
+    <?php endif; ?>
+    if ($('product_addtocart_form').down('p.availability')) {
+        (function () {
+            var removeEl = $('product_addtocart_form').down('p.availability');
+            var parentEl = $(removeEl.parentNode);
+            parentEl.removeChild(removeEl);
+            removeEl = $('product_addtocart_form').down('div.price-box');
+            parentEl = $(removeEl.parentNode);
+            parentEl.removeChild(removeEl);
+        })();
+    }
+
+    var idP = <?php echo $_product->getId(); ?>;
+    if (!$('product-price-' + idP)) {
+        if ($('product-price-' + idP + '_clone')) {
+            $('product-price-' + idP + '_clone').id = 'product-price-' + idP;
+        }
+
+        if ($('old-price-' + idP + '_clone')) {
+            $('old-price-' + idP + '_clone').id = 'old-price-' + idP;
+        }
+    }
+
+    var productAddToCartForm = new VarienForm('product_addtocart_form');
+    productAddToCartForm.submit = function (button, url) {
+        if (this.validator.validate()) {
+            var form = this.form;
+            var oldUrl = form.action;
+            if (url) {
+                form.action = url;
+            }
+            var e = null;
+            try {
+                // Inline add to cart
+                var sBtn = $(button);
+                sBtn.hide();
+                sBtn.parentNode.appendChild(Element.clone($('ajaxcart-add-loading'), 1));
+
+                var inputElements = Form.getElements(form);
+                var formElements = [];
+                var el;
+                for (var i = 0; i < inputElements.length; i++) {
+                    el = inputElements[i];
+                    if (el.value == '') {
+                        continue;
+                    }
+                    formElements[formElements.length] = el;
+                }
+                ajaxcart.addToCartHandle(form.action, Form.serializeElements(formElements));
+            } catch (e) {
+            }
+            this.form.action = oldUrl;
+            if (e) {
+                throw e;
+            }
+            if (button && button != 'undefined') {
+                button.disabled = true;
+            }
+        }
+    }.bind(productAddToCartForm);
+
+    if ($('ajaxcart-content').down('button.btn-cart')) {
+        $('ajaxcart-content').down('button.btn-cart').onclick = function (event) {
+            productAddToCartForm.submit(this);
+        }
+    }
+
+    productAddToCartForm.submitLight = function (button, url) {
+        if (this.validator) {
+            var nv = Validation.methods;
+            delete Validation.methods['required-entry'];
+            delete Validation.methods['validate-one-required'];
+            delete Validation.methods['validate-one-required-by-name'];
+            if (this.validator.validate()) {
+                if (url) {
+                    this.form.action = url;
+                }
+                // Inline add to cart
+                var sBtn = $(button);
+                sBtn.hide();
+                sBtn.parentNode.appendChild(Element.clone($('ajaxcart-add-loading'), 1));
+                ajaxcart.addToCartHandle(this.form.action, this.form.serialize());
+            }
+            Object.extend(Validation.methods, nv);
+        }
+    }.bind(productAddToCartForm);
+    //]]>
+</script>
+

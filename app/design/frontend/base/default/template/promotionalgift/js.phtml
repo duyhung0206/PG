@@ -1,0 +1,537 @@
+<?php
+//helper declare
+$helper = Mage::helper('promotionalgift');
+//config variable $allowchangegiftqty
+$allowchangegiftqty = $helper->getConfig('changegiftqty');
+//reload session reset
+Mage::getModel('core/session')->setData('is_cart_reload', null);
+$loadingUrl = $helper->getAjaxloaderImage();
+$storeId=Mage::app()->getStore()->getId();
+?>
+<?php /* Prevent Conflicting JQuery */ ?>
+<script type="text/javascript" src="<?php echo $this->getJsUrl() . 'magestore/promotionalgift/jcarousel/jquery-1.4.2.min.js' ?>"></script>
+<script type="text/javascript" src="<?php echo $this->getJsUrl() . 'magestore/promotionalgift/jcarousel/jquery.jcarousel.min.js' ?>"></script>
+<script type="text/javascript" src="<?php echo $this->getJsUrl() . 'magestore/promotionalcartpage.js' ?>"></script>
+
+<?php
+/* Window load event
+ * Disable edit button and edit qty input box
+ */
+?>
+
+<?php if (!$allowchangegiftqty): ?>
+    <script type="text/javascript">
+        Event.observe(window, 'load', function () {
+            disableQty();
+        });
+
+        function disableQty() {
+            var itemEditIds = '<?php echo $this->getEidtItemIds() ?>';
+            var itemEditOptionIds = '<?php echo $this->getEidtItemOptionIds() ?>';
+            var itemEditIds = itemEditIds.split(',');
+            var itemEditOptionIds = itemEditOptionIds.split(',');
+            //Disable edit link
+            // var giftEdit = $$('a[title^=Edit item parameters]');	
+            var editElementATag = document.getElementsByTagName('a');
+            var giftEdit = new Array();
+            for (var k = 0; k < editElementATag.length; k++) {
+                if (editElementATag[k].getAttribute('title') == "<?php echo $this->__('Edit item parameters'); ?>") {
+                    giftEdit.push(editElementATag[k]);
+                }
+            }
+            for (var i = 0; i < giftEdit.length; i++) {
+                for (var j = 0; j < itemEditOptionIds.length; j++) {
+                    if (getGiftEditItemId(giftEdit[i].href) == itemEditOptionIds[j]) {
+                        giftEdit[i].innerHTML = "<?php echo $this->__('Edit'); ?>";
+                    }
+                    if (getGiftEditItemId(giftEdit[i].href) == itemEditIds[j]) {
+                        // giftEdit[i].style.display = 'none';						
+                        if (giftEdit[i].parentNode)
+                            giftEdit[i].parentNode.removeChild(giftEdit[i]);
+                    }
+                }
+            }
+
+            var itemIds = '<?php echo $this->getItemIds() ?>';
+            var itemIds = itemIds.split(',');
+            //Disable qty
+            var giftQty = $$('input[class^=\'input-text qty\']');
+            for (var i = 0; i < giftQty.length; i++) {
+                for (var j = 0; j < itemIds.length; j++) {
+                    if (getGiftItemId(giftQty[i].name) == itemIds[j]) {
+                        giftQty[i].readOnly = true;
+                        giftQty[i].style.background = 'none';
+                        giftQty[i].style.border = 'none';
+                    }
+                }
+            }
+        }
+
+        function getGiftEditItemId(name)
+        {
+            var giftEdit = '';
+            var name = name.split('/id/');
+            var name = name[1].split('/');
+            giftEdit = name[0];
+            return giftEdit;
+        }
+
+        function getGiftItemId(name)
+        {
+            var giftItem = '';
+            var name = name.split('[');
+            var name = name[1].split(']');
+            giftItem = name[0];
+            return giftItem;
+        }
+
+    </script>
+
+
+    <?php /* Update item with Magestore Promotionalgift Ajaxfreecart */ ?>
+    <script type="text/javascript">
+        function getGiftEditCartItemId(name)
+        {
+            var giftEdit = '';
+            var name = name.split('/id/');
+            var name = name[1].split('/');
+            giftEdit = name[0];
+            return giftEdit;
+        }
+
+        function getGiftCartItemId(name)
+        {
+            var giftItem = '';
+            var name = name.split('[');
+            var name = name[1].split(']');
+            giftItem = name[0];
+            return giftItem;
+        }
+
+        var ajaxcartfree = new Ajaxfreecartpage('ajaxcart-load-ajax', 'ajaxcart-pop-up', 'ajaxcart-content', 'div[class="cart"]', $$('.header ul.links').first(), true);
+        function updatewithajaxcart()
+        {
+            var requestUrl = '<?php echo $this->getUrl('promotionalgift/index/getdataforcart'); ?>';
+            new Ajax.Request(requestUrl, {
+                method: 'post',
+                postBody: '',
+                parameters: '',
+                onException: '',
+                onComplete: function (transport) {
+                    var xhr = transport.responseText;
+                    if (xhr.isJSON) {
+                        var response = xhr.evalJSON();
+                        var itemEditIds = '';
+                        var itemEditOptionIds = '';
+                        var itemIds = '';
+                        if (response.itemEditIds) {
+                            var itemEditIds = response.itemEditIds;
+                        }
+                        if (response.itemEditOptionIds) {
+                            var itemEditOptionIds = response.itemEditOptionIds;
+                        }
+                        if (response.itemIds) {
+                            var itemIds = response.itemIds;
+                        }
+                        var itemEditIds = itemEditIds.split(',');
+                        var itemEditOptionIds = itemEditOptionIds.split(',');
+                        //Disable edit link
+                        var editElementATag = document.getElementsByTagName('a');
+                        var giftEdit = new Array();
+                        for (var k = 0; k < editElementATag.length; k++) {
+                            if (editElementATag[k].getAttribute('title') == "<?php echo $this->__('Edit item parameters'); ?>") {
+                                giftEdit.push(editElementATag[k]);
+                            }
+                        }
+                        for (var i = 0; i < giftEdit.length; i++) {
+                            for (var j = 0; j < itemEditOptionIds.length; j++) {
+                                if (getGiftEditCartItemId(giftEdit[i].href) == itemEditOptionIds[j]) {
+                                    giftEdit[i].innerHTML = '<?php echo $this->__('Edit Option'); ?>';
+                                }
+                                if (getGiftEditCartItemId(giftEdit[i].href) == itemEditIds[j]) {
+                                    if (giftEdit[i].parentNode)
+                                        giftEdit[i].parentNode.removeChild(giftEdit[i]);
+                                }
+                            }
+                        }
+                        var itemIds = itemIds.split(',');
+                        //Disable qty
+                        var giftQty = $$('input[class^=\'input-text qty\']');
+                        for (var i = 0; i < giftQty.length; i++) {
+                            for (var j = 0; j < itemIds.length; j++) {
+                                if (getGiftCartItemId(giftQty[i].name) == itemIds[j]) {
+                                    giftQty[i].readOnly = true;
+                                    giftQty[i].style.background = 'none';
+                                    giftQty[i].style.border = 'none';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+<?php endif; ?>
+
+<?php //AJAX RELOAD SLIDE GIFT IN CHECKOUT PAGE ?>
+<script type="text/javascript">
+    function loadPromotionalGiftAjax(url) {
+        var loader = document.getElementById('promotionalgift-loader');
+        var loaderCatalog=document.getElementById('promotionalgift-loader-catalog');
+	   /*  if(loaderCatalog)
+		{
+			loaderCatalog.style.display = 'block';
+			var y = $('promotional-over').getHeight() + 'px';
+			$('promotionalgift-loader-catalog').style.height = y;
+		}
+		loader.style.display = 'block'; */
+		var reviewActive = 0;
+		var is_onestep = 0;
+		$$('.active').each(function (element) {
+			if (element.id == 'opc-review') {
+				reviewActive = 1;
+			}
+		});
+		if ($('ajax-review')) {
+			is_onestep = 1;
+			reviewActive = 1;
+		}
+	   // var h = $('promotional-over').getHeight() + 'px';
+		//$('promotionalgift-loader').style.height = h;
+		new Ajax.Request(url, {
+			onSuccess: function (xhr) {
+				if (xhr.responseText.isJSON()) {
+					var response = xhr.responseText.evalJSON();
+					reloadShoppingCartRule(response,false);
+				}
+			},
+			onComplete: function (xhr) {
+				if (reviewActive == 1) {
+					//reset review block
+					var reviewUrl = '<?php echo Mage::getUrl('promotionalgift/index/getReviewHtml'); ?>';
+					new Ajax.Request(reviewUrl, {
+						parameters: {is_onestep: is_onestep},
+						onSuccess: function (xhr) {
+							if (xhr.responseText.isJSON()) {
+								var response = xhr.responseText.evalJSON();
+								reloadReviewPG(response);
+							}
+						}
+					});
+				}
+			}
+		});
+    }
+</script>
+
+<?php //js for responsive ?>
+<script type="text/javascript">
+    function activeClass(el, number) {
+        var showDivId = 'promotional-srule-' + number;
+        if ($(showDivId).style.display == 'none') {
+            el.removeClassName('active');
+        } else {
+            el.addClassName('active');
+
+        }
+    }
+
+</script>
+
+<?php /* JS FOR ADDING GIFTS */ ?>
+<script type="text/javascript">
+    function addPromotionalGiftCategoryRule(productid, qty, urlproduct, categoryruleid)
+    {
+        if (urlproduct == '0') {
+            var loaderHeight = $('promotional-over-catalog').getHeight() + 'px';
+            $('promotionalgift-loader-catalog').style.height = loaderHeight;
+            $('promotionalgift-loader-catalog').style.display = 'block';
+            var loader = document.getElementById('promotionalgift-loader');
+            if(loader)
+            {
+                loader.style.height = loaderHeight;
+                loader.style.display = 'block';
+            }
+            var url = '<?php echo $this->getUrl('promotionalgift/index/addPromotionalGiftsCategoryRule') ?>' + 'items/' + productid + '/categoryruleid/' + categoryruleid + '/qty/' + qty;
+        } else {
+            hideSlideGift();
+            var url = '<?php echo $this->getUrl() ?>' + urlproduct + '?options=cart&items=' + productid + '&categoryruleid=' + categoryruleid + '&qty=' + qty;
+        }
+        setLocationPromotionalGift(url,productid);
+    }
+    function addPromotionalGiftCheckout(ruleId, productId, urlproduct)
+    {
+        if (urlproduct == '0') {
+            var loaderHeight = $('promotional-over').getHeight() + 'px';
+            $('promotionalgift-loader').style.height = loaderHeight;
+            $('promotionalgift-loader').style.display = 'block';
+            var loaderCatalog=document.getElementById('promotionalgift-loader-catalog');
+            if(loaderCatalog)
+            {
+                loaderCatalog.style.height = loaderHeight;
+                loaderCatalog.style.display = 'block';
+            }
+            var url = '<?php echo $this->getUrl('promotionalgift/index/addPromotionalGiftsCheckout') ?>' + 'product_id/' + productId + '/ruleId/' + ruleId;
+        } else {
+            var url = '<?php echo $this->getUrl() ?>' + urlproduct + '?options=cart&product_id=' + productId + '&ruleId=' + ruleId + '&checkout=1';
+        }
+        setLocationPromotionalGift(url);
+    }
+    function addPromotionalGift(ruleId, productId, urlproduct)
+    {
+        if (urlproduct == '0') {
+            var loaderHeight = $('promotional-over').getHeight() + 'px';
+            $('promotionalgift-loader').style.height = loaderHeight;
+            $('promotionalgift-loader').style.display = 'block';
+            var loaderCatalog=document.getElementById('promotionalgift-loader-catalog');
+            if(loaderCatalog)
+            {
+                loaderCatalog.style.height = loaderHeight;
+                loaderCatalog.style.display = 'block';
+            }
+            var url = '<?php echo $this->getUrl('promotionalgift/index/addPromotionalGifts') ?>' + 'product_id/' + productId + '/ruleId/' + ruleId;
+        } else {
+            hideSlideGift();
+            var url = '<?php echo $this->getUrl() ?>' + urlproduct + '?options=cart&product_id=' + productId + '&ruleId=' + ruleId;
+        }
+        setLocationPromotionalGift(url,productId);
+    }
+    function showCatalog(id)
+    {
+        var showDivId='showcatalogrule-' + id;
+        if ($(showDivId).style.display == 'none') {
+            $(showDivId).style.display = 'block';
+        } else {
+            $(showDivId).style.display = 'none';
+        }
+        $$('.showcatalogrule').each(function (el) {
+            if (el.style.display == 'block' && el.id != showDivId) {
+                el.style.display = 'none';
+            }
+        });
+    }
+    function showCampaign(id) {
+        var showDivId = 'promotional-srule-' + id;
+        if ($(showDivId).style.display == 'none') {
+            $(showDivId).style.display = 'block';
+        } else {
+            $(showDivId).style.display = 'none';
+        }
+        $$('.promotional-srule').each(function (el) {
+            if (el.style.display == 'block' && el.id != showDivId) {
+                el.style.display = 'none';
+            }
+        });
+    }
+    function hideSlideGift() {
+         if($D('#shoppingcart-promotion .fade')[0])
+            $D('#shoppingcart-promotion .fade')[0].click();
+         if($D('#catalog-promotion .fade')[0])
+            $D('#catalog-promotion .fade')[0].click();
+		 if($('promotionalgift-loader'))
+			 $('promotionalgift-loader').hide();
+		 if($('promotionalgift-loader-catalog'))
+			 $('promotionalgift-loader-catalog').hide();
+    }
+</script>
+<style>
+    .promotional-title .main-title{
+        background-color: #<?php echo Mage::getStoreConfig('promotionalgift/style/background_title', $storeId); ?>;
+        color:#<?php echo Mage::getStoreConfig('promotionalgift/style/color_title', $storeId); ?>
+    }
+    .promotional-title .link-title{
+        background-color: #<?php echo Mage::getStoreConfig('promotionalgift/style/background_label', $storeId); ?>;
+        color:#<?php echo Mage::getStoreConfig('promotionalgift/style/color_label', $storeId); ?>
+    }
+    .promotional-button .addgift{
+        background-color: #<?php echo Mage::getStoreConfig('promotionalgift/style/background_title', $storeId); ?>;
+    }
+    .promotional-button .addgift span span{
+        color:#<?php echo Mage::getStoreConfig('promotionalgift/style/color_title', $storeId); ?>;
+        font-weight:normal;
+    }
+    .promotional-button span span{
+        color:#<?php echo Mage::getStoreConfig('promotionalgift/style/background_title', $storeId); ?>;
+        font-weight:bold;
+    }
+</style>
+<?php /* Fix style for slider */ ?>
+<style>
+    #promotional-category-table{
+        background-color: white;
+    }
+    .item{
+        margin:10px;
+    }
+    .addgift{
+        padding: 10px 15px;
+        border: 0;
+        line-height: 11px;
+        font-size: 13px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+</style>
+
+<?php //style checkout ajax loader ?>
+<style>
+    .promotional-over{
+        float: left;
+        width: 100%;
+        /*        position: relative; */
+        min-height: 100px;
+        background: none;
+    }
+
+    .promotionalgift-loader{
+        float: left;
+        width: 100%;
+        /*        height: 100%;*/
+        opacity: 0.95;
+        z-index: 9999;
+    //background: url(<?php echo $loadingUrl ?>) no-repeat;
+        position: absolute;
+        background-color: #fff;
+        background-position: center;
+    }
+    .promotionalgift-loader span img
+    {
+        position:absolute;
+        background:#fff;
+        top:20%;
+        left:45%;
+    }
+    .promotionalgift-loader .promo{
+        position: relative;
+        width: 100%;
+        float: left;
+        height: 100%;
+        text-align: center;
+    }
+    .ajax-loader{
+        position:relative;
+        height:100%;
+    }
+    .main-container{
+        position:static;
+    }
+</style>
+
+<?php /* LOADER CSS */ ?>
+<style>
+    .spinner {
+        text-align:center;
+        top: 48%;
+        left: 49%;
+        width: 30px;
+        height: 30px;
+        position: relative;
+    }
+
+    .container1 > div, .container2 > div, .container3 > div {
+        width: 6px;
+        height: 6px;
+        background-color: #<?php echo Mage::getStoreConfig('promotionalgift/style/background_title', $storeId); ?>;
+        border-radius: 100%;
+        position: absolute;
+        -webkit-animation: bouncedelay 1.2s infinite ease-in-out;
+        animation: bouncedelay 1.2s infinite ease-in-out;
+        /* Prevent first frame from flickering when animation starts */
+        -webkit-animation-fill-mode: both;
+        animation-fill-mode: both;
+    }
+
+    .spinner .spinner-container {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
+
+    .container2 {
+        -webkit-transform: rotateZ(45deg);
+        transform: rotateZ(45deg);
+    }
+
+    .container3 {
+        -webkit-transform: rotateZ(90deg);
+        transform: rotateZ(90deg);
+    }
+
+    .circle1 { top: 0; left: 0; }
+    .circle2 { top: 0; right: 0; }
+    .circle3 { right: 0; bottom: 0; }
+    .circle4 { left: 0; bottom: 0; }
+
+    .container2 .circle1 {
+        -webkit-animation-delay: -1.1s;
+        animation-delay: -1.1s;
+    }
+
+    .container3 .circle1 {
+        -webkit-animation-delay: -1.0s;
+        animation-delay: -1.0s;
+    }
+
+    .container1 .circle2 {
+        -webkit-animation-delay: -0.9s;
+        animation-delay: -0.9s;
+    }
+
+    .container2 .circle2 {
+        -webkit-animation-delay: -0.8s;
+        animation-delay: -0.8s;
+    }
+
+    .container3 .circle2 {
+        -webkit-animation-delay: -0.7s;
+        animation-delay: -0.7s;
+    }
+
+    .container1 .circle3 {
+        -webkit-animation-delay: -0.6s;
+        animation-delay: -0.6s;
+    }
+
+    .container2 .circle3 {
+        -webkit-animation-delay: -0.5s;
+        animation-delay: -0.5s;
+    }
+
+    .container3 .circle3 {
+        -webkit-animation-delay: -0.4s;
+        animation-delay: -0.4s;
+    }
+
+    .container1 .circle4 {
+        -webkit-animation-delay: -0.3s;
+        animation-delay: -0.3s;
+    }
+
+    .container2 .circle4 {
+        -webkit-animation-delay: -0.2s;
+        animation-delay: -0.2s;
+    }
+
+    .container3 .circle4 {
+        -webkit-animation-delay: -0.1s;
+        animation-delay: -0.1s;
+    }
+
+    @-webkit-keyframes bouncedelay {
+        0%, 80%, 100% { -webkit-transform: scale(0.0) }
+        40% { -webkit-transform: scale(1.0) }
+    }
+
+    @keyframes bouncedelay {
+        0%, 80%, 100% {
+            transform: scale(0.0);
+            -webkit-transform: scale(0.0);
+        } 40% {
+              transform: scale(1.0);
+              -webkit-transform: scale(1.0);
+          }
+    }
+    /*#catalog_rule ul li,#shoppingcart_rule ul li{*/
+    /*width: 246px !important;*/
+    /*}*/
+</style>

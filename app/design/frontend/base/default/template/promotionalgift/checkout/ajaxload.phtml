@@ -1,0 +1,6 @@
+<?php $url = Mage::getUrl('promotionalgift/index/checkoutAjaxLoadPromotionalgift'); ?>
+<?php if (Mage::helper('promotionalgift')->getConfig('showfreegift') != 'cart'): ?>
+    <script type="text/javascript">
+        loadPromotionalGiftAjax('<?php echo $url ?>');
+    </script>
+<?php endif; ?>

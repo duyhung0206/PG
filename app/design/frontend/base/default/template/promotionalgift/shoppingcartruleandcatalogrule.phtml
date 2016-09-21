@@ -1,0 +1,209 @@
+<?php
+$helper = Mage::helper('promotionalgift');
+$controller=Mage::app()->getRequest()->getControllerName();
+$router=Mage::app()->getRequest()->getRouteName();
+
+if (($router =='checkout' && $helper->showFreeGift() == $controller) || ($helper->showFreeGift() == 'both') && $helper->getModuleStatus()):
+	$storeId = Mage::app()->getStore()->getId();
+	$shopTitle = Mage::getStoreConfig('promotionalgift/shoppingcart_rule_configuration/shoppingcarttitle',$storeId);
+	$catTitle = Mage::getStoreConfig('promotionalgift/catalog_rule_configuration/catalogtitle',$storeId);
+	$shoppingCartRuleIds = Mage::helper('promotionalgift/rule')->getShoppingcartRule();
+	$isCategoryRule = $helper->checkHasCatalogRule();
+	$actions = $helper->getActionsList();
+	?>
+	<div id="div-message" style="display:none"></div>
+	<?php if(!empty($actions)): ?>
+	<div id="promotional-gift-items-add">
+		<?php if(($shoppingCartRuleIds && count($shoppingCartRuleIds) > 0) || $isCategoryRule): ?>
+			<span class="promotional-gift-link" data-toggle="modal" onclick="showRules()"><?php echo $this->__('Select your GIFT') ?></span><br/>
+			<input type="hidden" value="<?php echo count($actions); ?>" id="number_of_rules">
+		<?php endif; ?>
+		<?php if($isCategoryRule): ?>
+			<button style="display:none" id="catalog_gift"  data-toggle="modal" data-target="#shoppingcart-promotion" onclick="showCatalogRule()"><?php echo $catTitle ?></button>
+		<?php endif; ?>
+		<?php if($shoppingCartRuleIds && count($shoppingCartRuleIds) > 0): ?>
+			<button style="display:none;" id="shoppingcart_gift"  data-toggle="modal" data-target="#catalog-promotion" onclick="showShoppingCartRule()"><?php echo $shopTitle ?></button>
+		<?php endif; ?>
+	</div>
+<?php endif; ?>
+<?php endif; ?>
+<script type="text/javascript">
+	function showRules(){
+		var actions = <?php echo json_encode($actions) ?>;
+		if(actions.length >= 2 && ($('number_of_rules').value > 1)){
+			if($('next_rule')){
+				$('next_rule').disabled = false;
+				$('next_rule').removeClassName('disable_class');
+				$('next_rule').setAttribute('onclick',actions[1]);
+			}
+		}
+		if($('previous_rule')){
+			$('previous_rule').setAttribute('onclick',actions[0]);
+			$('previous_rule').click();
+			$('previous_rule').disabled = true;
+			$('previous_rule').addClassName('disable_class');
+		}
+		if($('catalog_gift') && actions[0] == "loadRule(this,1,'catalog')" && $('number_of_rules').getAttribute('has_catalog') != 'false')
+			$('catalog_gift').click();
+		else
+			$('shoppingcart_gift').click();
+	}
+	function showCatalogRule(){
+		includeLibrary();
+		var ruleIds = '<?php echo json_encode(Mage::helper('promotionalgift/rule')->getCatagoryRuleCurrent()); ?>';
+		var rulesArr = JSON.parse(ruleIds);
+		if(rulesArr.length > 0){
+			for(var i = 0; i < rulesArr.length;i++) {
+				if ($D("#promotional-category-table-"+rulesArr[i])) {
+					var element = $D("#promotional-category-table-"+rulesArr[i]);
+					element.owlCarousel({
+						items: 3,
+						itemsDesktop: [1199, 3],
+						itemsDesktopSmall: [979, 2]
+					});
+				}
+			}
+		}
+		if($('number_of_rules').value < 2){
+			if($$('.link_paginator')[0])
+				$$('.link_paginator')[0].hide();
+		}
+
+	}
+	function showShoppingCartRule(){
+		includeLibrary();
+		var ruleIds = '<?php echo json_encode(Mage::helper('promotionalgift/rule')->getShoppingcartRule()); ?>';
+		var rulesArr = JSON.parse(ruleIds);
+		for(var i = 0; i < rulesArr.length;i++) {
+			if ($D("#promotional-shoppingcart-table-"+rulesArr[i])) {
+				var element = $D("#promotional-shoppingcart-table-"+rulesArr[i]);
+				element.owlCarousel({
+					items: 3,
+					itemsDesktop: [1199, 3],
+					itemsDesktopSmall: [979, 2]
+				});
+			}
+		}
+		if($('number_of_rules').value < 2){
+			if($$('.link_paginator')[0])
+				$$('.link_paginator')[0].hide();
+		}
+	}
+</script>
+<script type="text/javascript">
+	var actionArray = <?php echo json_encode($actions) ?>;
+	var historyAction = [];
+	var indexHistory = 0;
+	function loadRule(elements,page_number,type_rule) {
+		/*disable Add To Cart button*/
+		if($$('.promotional-button .addgift')){
+			$$('.promotional-button .addgift').each(function(el){
+				el.setAttribute('disabled','disabled');
+			});
+		}
+		/**/
+		for(var i = 0; i < $$('.loader_pag').length; i++){
+			$$('.loader_pag')[i].style.display = 'block';
+		}
+		if(elements.id == 'previous_rule') var action = 'previous';
+		if(elements.id == 'next_rule') var action = 'next';
+		var parameters = {
+			page: page_number,
+			type_rule : type_rule,
+			action : action
+		};
+		var url_load = '<?php echo $this->getUrl('promotionalgift/index/nextRule'); ?>';
+		var request = new Ajax.Request(url_load,
+			{
+				method: 'post',
+				parameters: parameters,
+				loaderArea: false,
+				onSuccess: function(transport) {
+					if (transport.responseText) {
+						/*disable Add To Cart button*/
+						if($$('.promotional-button .addgift')){
+							$$('.promotional-button .addgift').each(function(el){
+								el.removeAttribute('disabled');
+							});
+						}
+						/**/
+						for(var i = 0; i < $$('.loader_pag').length; i++){
+							$$('.loader_pag')[i].style.display = 'none';
+						}
+						var nextRule = transport.responseText.evalJSON();
+						var onclickPre = $('previous_rule').getAttribute('onclick').split(',');
+						var onclickNext = $('previous_rule').getAttribute('onclick').split(',');
+						var previousAction = onclickPre[2];
+						var nextAction = onclickNext[2];
+						if(indexHistory >= 1){
+							if(historyAction[indexHistory - 1] == 'catalog'){
+								$('catalog_rule').innerHTML = nextRule.html;
+								historyAction[indexHistory] = 'catalog';
+							}
+							else{
+								$('shoppingcart_rule').innerHTML = nextRule.html;
+								historyAction[indexHistory] = 'shop';
+							}
+						}
+						else{
+							if(type_rule == 'catalog'){
+								$('catalog_rule').innerHTML = nextRule.html;
+								historyAction[indexHistory] = 'catalog';
+							}
+							else{
+								$('shoppingcart_rule').innerHTML = nextRule.html;
+								historyAction[indexHistory] = 'shop';
+							}
+						}
+						includeLibrary();
+						if ($D("#promotional-category-table-"+nextRule.rule_id)) {
+							var element = $D("#promotional-category-table-"+nextRule.rule_id);
+							element.owlCarousel({
+								items: 3,
+								itemsDesktop: [1199, 3],
+								itemsDesktopSmall: [979, 2]
+							});
+						}
+						if ($D("#promotional-shoppingcart-table-"+nextRule.shop_rule_id)) {
+							var element = $D("#promotional-shoppingcart-table-"+nextRule.shop_rule_id);
+							element.owlCarousel({
+								items: 3,
+								itemsDesktop: [1199, 3],
+								itemsDesktopSmall: [979, 2]
+							});
+						}
+						if(nextRule.actions)
+							var actionArray = nextRule.actions;
+						for(var key = 0; key < actionArray.length;key++) {
+							if(actionArray[key] == $(elements).getAttribute('onclick')) {
+								if(action == 'next' && actionArray[key+1]){
+									$('next_rule').setAttribute('onclick',actionArray[key+1]);
+									$('previous_rule').setAttribute('onclick',actionArray[key-1]);
+								}
+								if(action == 'next' && !actionArray[key+1]){
+									$('previous_rule').setAttribute('onclick',actionArray[key-1]);
+									$('next_rule').disabled = true;
+									$('next_rule').addClassName('disable_class');
+								}
+								if(action == 'previous' && actionArray[key-1]){
+									$('next_rule').setAttribute('onclick',actionArray[key+1]);
+									$('previous_rule').setAttribute('onclick',actionArray[key-1]);
+								}
+								if(action == 'previous' && !actionArray[key-1]){
+									$('next_rule').setAttribute('onclick',actionArray[key+1]);
+									$('previous_rule').disabled = true;
+									$('previous_rule').addClassName('disable_class');
+								}
+							}
+						}
+						indexHistory++
+						if(($('number_of_rules').value && $('number_of_rules').value < 2) || nextRule.actions.length < 2){
+							if($$('.link_paginator')[0])
+								$$('.link_paginator')[0].hide();
+						}
+					}
+				}
+			}
+		);
+	}
+</script>

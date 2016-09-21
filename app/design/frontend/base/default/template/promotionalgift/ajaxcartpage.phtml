@@ -1,0 +1,787 @@
+<?php
+/**
+ * ajaxcart template
+ */
+?>
+<?php
+// start set session to check load review on checkout -LOKI
+    $router = Mage::app()->getRequest()->getRouteName();
+    $controll = Mage::app()->getRequest()->getControllerName();
+    //fix reload review catalog in checkout
+    Mage::getSingleton('checkout/session')->setCheckrouter(null);
+    Mage::getSingleton('checkout/session')->setCheckcontroll(null);
+    if ($router == 'checkout' && $controll == 'onepage') {
+        Mage::getSingleton('checkout/session')->setData('checkrouter',$router);
+        Mage::getSingleton('checkout/session')->setData('checkcontroll',$controll);
+        Mage::getSingleton('checkout/session')->setData('isCheckout',1);
+    }
+//    end LOKI
+?>
+<?php $freeItemIds = $this->getFreeItemIds(); ?>
+<?php //$_templateFolder = Mage::helper('ajaxcart')->getTemplateFolder() ?>
+<?php //if ($_templateFolder && file_exists(dirname(__FILE__)."/$_templateFolder/ajaxcartpage.phtml")): ?>
+<?php //include "$_templateFolder/ajaxcartpage.phtml" ?>
+<?php //else: 
+$storeId = Mage::app()->getStore()->getId();
+?>
+
+<style>
+    #product_addtocart_form .addgift {
+        background-color: # <?php echo Mage::getStoreConfig('promotionalgift/style/background_title', $storeId); ?>;
+    }
+
+    #product_addtocart_form .addgift span span {
+        color: # <?php echo Mage::getStoreConfig('promotionalgift/style/color_title', $storeId); ?>
+    }
+
+    #product_addtocart_form .outstock-notice {
+        color: # <?php echo Mage::getStoreConfig('promotionalgift/style/background_title', $storeId); ?>;
+        float: right;
+        margin-top: 15px;
+        margin-right: 10px;
+    }
+</style>
+<?php
+$_helper = Mage::helper('promotionalgift');
+//config variable $allowchangegiftqty
+$allowchangegiftqty = $_helper->getConfig('changegiftqty');
+?>
+
+<div class="ajaxcart">
+<div id="ajaxcart-load-ajax" style="display:none;">
+    <div class="ajaxcart-overlay">&nbsp;</div>
+    <div class="ajaxcart-loading">
+        <img alt="<?php echo $this->__('Loading') ?>..." src="<?php echo $this->getUrlImage(); ?>"/>
+        <span><?php echo $this->__('Loading') ?>...</span>
+    </div>
+</div>
+<div class="ajaxcart-animation-mask" style="display: none;"></div>
+<div id="ajaxcart-animation" style="display: none;"></div>
+<div id="ajaxcart-pop-up" style="display: none;">
+    <div class="ajaxcart-popup-overlay" onclick="">&nbsp;</div>
+    <div>
+        <div id="ajaxcart-content" class="ajaxcart-content"></div>
+    </div>
+</div>
+<?php if ($this->getIsShowConfirmation()): ?>
+    <div id="ajaxcart-continue-shopping" style="display: none;">
+        <div class="ajaxcart-continue">
+            <ul class="messages ajaxcart-messages"></ul>
+            <div id="ajaxcart-related"></div>
+            <div class="ajaxcart-footer">
+                <div class="ajaxcart-checkout">
+                    <button type="button" class="button" title="<?php echo $this->__('Checkout') ?>"
+                            onclick="ajaxcartProcessCheckout();">
+                            <span>
+                                <span><?php echo $this->__('Checkout') ?></span>
+                            </span>
+                    </button>
+                </div>
+                <div class="ajaxcart-cancel">
+                    <button type="button" class="ajaxcart-btn-continue"
+                            title="<?php echo $this->__('Continue shopping') ?>" onclick="closeAjaxPopup();">
+                            <span class="span">
+                                <span><?php echo $this->__('Continue shopping') ?>
+                                    <?php if ($this->getTimeOut()): ?>
+                                        (<em id="ajaxcart-coundown"><?php echo $this->getTimeOut() ?></em>)
+                                    <?php endif ?>
+                                </span>
+                            </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php endif ?>
+<?php if ($this->getIsShowConfirmation()): ?>
+    <div id="ajaxcart-continue-shopping-wishlist" style="display: none;">
+        <div class="ajaxcart-continue">
+            <ul class="messages-wishlist ajaxcart-messages"></ul>
+            <div id="ajaxcart-related-wishlist"></div>
+            <div class="ajaxcart-footer">
+                <div class="ajaxcart-checkout">
+                    <button type="button" class="button" title="<?php echo $this->__('Go to Wishlist') ?>"
+                            onclick="ajaxcartProcessWishlist();">
+                            <span>
+                                <span><?php echo $this->__('Go to Wishlist') ?></span>
+                            </span>
+                    </button>
+                </div>
+                <div class="ajaxcart-cancel">
+                    <button type="button" class="ajaxcart-btn-continue"
+                            title="<?php echo $this->__('Continue shopping') ?>" onclick="closeAjaxPopup();">
+                            <span class="span">
+                                <span><?php echo $this->__('Continue shopping') ?>
+                                    <?php if ($this->getTimeOut()): ?>
+                                        (<em id="ajaxcart-coundown"><?php echo $this->getTimeOut() ?></em>)
+                                    <?php endif ?>
+                                </span>
+                            </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php endif ?>
+<?php if ($this->getIsShowConfirmation()): ?>
+    <div id="ajaxcart-continue-shopping-compare" style="display: none;">
+        <div class="ajaxcart-continue">
+            <ul class="messages-compare ajaxcart-messages"></ul>
+            <div id="ajaxcart-related-compare"></div>
+            <div class="ajaxcart-footer">
+                <div class="ajaxcart-checkout">
+                    <button type="button" class="button" title="<?php echo $this->__('Compare') ?>"
+                            onclick="ajaxcartProcessCompare();">
+                            <span>
+                                <span><?php echo $this->__('Compare') ?></span>
+                            </span>
+                    </button>
+                </div>
+                <div class="ajaxcart-cancel">
+                    <button type="button" class="ajaxcart-btn-continue"
+                            title="<?php echo $this->__('Continue shopping') ?>" onclick="closeAjaxPopup();">
+                            <span class="span">
+                                <span><?php echo $this->__('Continue shopping') ?>
+                                    <?php if ($this->getTimeOut()): ?>
+                                        (<em id="ajaxcart-coundown"><?php echo $this->getTimeOut() ?></em>)
+                                    <?php endif ?>
+                                </span>
+                            </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php endif ?>
+<script type="text/javascript">
+var miniCart = false;
+var ajaxcartEvent = null;
+var ajaxcart = null;
+// Process Checkout by click to Button
+function ajaxcartProcessCheckout() {
+    <?php if ($this->getTimeOut()): ?>clearInterval(ajaxcartCountInterval);
+    <?php endif ?>
+    window.location.href = '<?php echo $this->getUrl('checkout/onepage/index') ?>';
+}
+
+function closeAjaxPopup() {
+    $('ajaxcart-pop-up').hide();
+    $('ajaxcart-content').innerHTML = '';
+    ajaxcart.cancelRequest();
+    if (typeof productAddToCartFormBak != "undefined") {
+        productAddToCartForm = productAddToCartFormBak;
+    }
+}
+
+
+Event.observe(window, 'load', function () {
+    ajaxcart = new Ajaxfreecartpage('ajaxcart-load-ajax', 'ajaxcart-pop-up', 'ajaxcart-content', 'div[class="cart"]', $$('.header ul.links').first(), <?php echo $this->getIsPreloadAjax() ? 'true' : 'false' ?>);
+
+    miniCart = $$('div[class="block block-cart"]');
+    var overlayHeight = $$('body').first().getHeight() + 'px';
+    $$('div.ajaxcart-overlay').first().style.height = overlayHeight;
+    $$('div.ajaxcart-popup-overlay').first().style.height = overlayHeight;
+    if (!$$('ul[class="messages"]').first()) {
+        var pageTitle = $$('.col-main').first().down('.page-title');
+        if (pageTitle) {
+            var messageTag = document.createElement('ul');
+            messageTag.className = 'messages';
+            var pageTitleParent = pageTitle.parentNode;
+            pageTitleParent.insertBefore(messageTag, pageTitle.next());
+        }
+    }
+
+    ajaxcart.updateJscartEvent();
+
+    $$('.addgift').each(function (el) {
+        el.observe('mousedown', function (event) {
+            ajaxcartEvent = event.element();
+        });
+    });
+});
+
+function setLocationPromotionalGift(url,productId) {
+    if (url.search('options=cart') != -1) {
+        // Process load option
+		var proElement = $('item_'+productId);
+        $('ajaxcart-pop-up').show();
+        var content = $('ajaxcart-content');
+        var pContent = document.createElement('div');
+        pContent.className = 'ajaxcart-preload';
+		if(proElement)
+			var productImage = proElement.down('.product-image');
+        if (productImage) {
+            pContent.appendChild(Element.clone(productImage, 1));
+        }
+
+        var productInfo = document.createElement('div');
+        productInfo.className = 'product-info';
+        pContent.appendChild(productInfo);
+		if(proElement)
+			var productName = proElement.down('.product-name');
+        if (productName)
+            productInfo.appendChild(Element.clone(productName, 1));
+		if(proElement)	
+			var productRate = proElement.down('.ratings');
+        if (productRate)
+            productInfo.appendChild(Element.clone(productRate, 1));
+		if(proElement)	
+			var productPrice = proElement.down('.price-box');
+        if (productPrice)
+            productInfo.appendChild(Element.clone(productPrice, 1));
+        pContent.appendChild(Element.clone($('ajaxcart-load-ajax').down('.ajaxcart-loading'), 1));
+
+        content.innerHTML = '';
+        content.appendChild(pContent);
+        if (productImage) {
+            pContent = content.down('.ajaxcart-preload');
+            productImage = pContent.down('img');
+            productImage.width = 128;
+            productImage.height = 128;
+        }
+        ajaxcart.updatePopupBox(content);
+        ajaxcart.addToCartHandle(url, '');
+    }
+    else {
+        //checkout banner
+        //catalog rule
+        var checkRc='<?php echo Mage::getSingleton('checkout/session')->getCheckrouter().'/'. Mage::getSingleton('checkout/session')->getCheckcontroll();?>';
+        if (url.indexOf('Checkout') > 0 || checkRc=='checkout/onepage') {
+            var reviewActive = 0;
+            var is_onestep = 0;
+            $$('.active').each(function (element) {
+                if (element.id == 'opc-review') {
+                    reviewActive = 1;
+                }
+            });
+
+            if ($('ajax-review')) {
+                is_onestep = 1;
+                reviewActive = 1;
+            }
+            if (is_onestep == 1) {
+                url = url + '/is_onestep/' + is_onestep;
+            }
+            if (reviewActive == 1) {
+                url = url + '/is_review/' + reviewActive;
+            }
+        }
+        
+//        alert('review= '+reviewActive);
+//        alert(checkRc); return false;
+        new Ajax.Request(url, {
+            method: 'post',
+            onSuccess: function (xhr) {
+                if (xhr.responseText.isJSON()) {
+                    var response = xhr.responseText.evalJSON();					
+                    
+                    hideSlideGift();
+                    if(response.shopping_rule_product == "")
+                        $D('#shoppingcart_gift').hide();
+					if(!response.has_catalog){
+						$('number_of_rules').setAttribute('has_catalog','false');
+					}
+                    if(!response.has_catalog && !response.has_shopping_cart){
+                        if(response.shopping_rule_product == "" && response.catalog_rule_product == "")
+                            $D('#promotional-gift-items-add').hide();
+                    }
+                    else{
+						if(response.actions){
+							actionArray = response.actions;
+							if(actionArray && parseInt(actionArray.length) == 0){
+								if($D('#promotional-gift-items-add'))
+									$D('#promotional-gift-items-add').hide();
+							}
+						} 
+						else	
+							$D('#promotional-gift-items-add').show();
+					}                  
+                    if (response.message_html) {
+                        addMessagePG(response);
+                    }
+
+                    if (response.minicart_html) {
+                        reloadCartMinicart(response);
+                    }
+
+                    if (response.is_checkout && response.is_checkout==1) {
+                        if ($D('#cart-sidebar .remove')) {
+                            $D('#cart-sidebar .remove').replaceWith( "<span>Remove Item</span>" );
+                        }
+                    }
+
+                    if (response.qtycart_html) {
+                        reloadQty(response);
+                    }
+                    if (response.return_url) {
+                        window.location.href = response.return_url;
+                    }
+                    if (response.review_html) {
+                        reloadReviewPG(response);
+                    }
+                    if (response.cart_html) {
+                        reloadCartPG(response);
+                    }
+                    if (response.catalog_gift_html) {
+                        reloadCatalogRule(response);
+                    }
+                    if (response.shopping_gift_html) {
+                        reloadShoppingCartRule(response);
+                    }
+                    if (response.grand_html) {
+                        reloadTotalPG(response);
+                    }
+                }
+            }
+        });
+    }
+}
+
+function addMessagePG(response) {
+    var overDivs = $$('.promotional-over');
+    var overDiv = overDivs[0];
+    if (overDiv) {
+        var msg = $('div-message');
+        msg.innerHTML = response.message_html;
+        msg.style.display = "block";
+        if ($('overlay'))
+            $('overlay').click();
+    }
+	if(response.actions){
+		var actionArray = response.actions;
+		if(actionArray && parseInt(actionArray.length) == 0){
+			if($D('#promotional-gift-items-add'))
+				$('promotional-gift-items-add').style.display = 'none';
+		}
+		if($('number_of_rules')){
+			$('number_of_rules').value = parseInt(actionArray.length);
+			if(!response.has_catalog){
+				$('number_of_rules').setAttribute('has_catalog','false');
+			}
+		}			
+	}
+}
+
+function reloadTotalPG(response) {
+    var cart_total = document.getElementById('shopping-cart-totals-table');
+	if(cart_total){
+		var fieldset = cart_total.parentNode;
+		fieldset.removeChild(cart_total);
+		fieldset.innerHTML = response.grand_html + fieldset.innerHTML;
+	}
+}
+function reloadReviewPG(response) {
+    if (response.is_onestep == 1) {
+        if (response.review_html) {
+            var review = $('checkout-review-load');
+            reviewLoad();
+            review.update(response.review_html);
+            reviewShow();
+        }
+    } else {
+        if (response.review_html) {
+            var reviewBlock = $('checkout-review-table-wrapper').parentNode;
+            reviewBlock.removeChild($('checkout-review-table-wrapper'));
+            reviewBlock.removeChild($('checkout-review-submit'));
+            var reviewResponse = document.createElement("div");
+            reviewResponse.innerHTML = response.review_html;
+            reviewBlock.appendChild(reviewResponse);
+        }
+    }
+}
+
+function reloadCartPG(response) {
+    var cart_table = document.getElementById('shopping-cart-table');
+	if(cart_table){
+		var fieldset = cart_table.parentNode;
+		fieldset.removeChild(cart_table);
+		fieldset.innerHTML = fieldset.innerHTML + response.cart_html;
+	}
+    <?php if (!$allowchangegiftqty): ?>
+    disableCartItemAjax(response);
+    <?php endif; ?>
+}
+
+function reloadCartMinicart(response) {
+    var header_minicart = jQuery('#header-cart');
+    header_minicart.html(response.minicart_html);
+}
+function reloadQty(response) {
+    var qty = jQuery('.header-minicart .count');
+    qty.html(response.qtycart_html);
+}
+
+function disableCartItemAjax(response) {
+    var itemEditIds = response.edit_item_ids;
+    var itemEditOptionIds = response.edit_item_option_ids;
+    var itemEditIds = itemEditIds.split(',');
+    var itemEditOptionIds = itemEditOptionIds.split(',');
+    //Disable edit link
+    // var giftEdit = $$('a[title^=Edit item parameters]');
+    var editElementATag = document.getElementsByTagName('a');
+    var giftEdit = new Array();
+    for (var k = 0; k < editElementATag.length; k++) {
+        if (editElementATag[k].getAttribute('title') == "<?php echo $this->__('Edit item parameters'); ?>") {
+            giftEdit.push(editElementATag[k]);
+        }
+    }
+    for (var i = 0; i < giftEdit.length; i++) {
+        for (var j = 0; j < itemEditOptionIds.length; j++) {
+            if (getGiftEditItemId(giftEdit[i].href) == itemEditOptionIds[j]) {
+                giftEdit[i].innerHTML = "<?php echo $this->__('Edit'); ?>";
+            }
+            if (getGiftEditItemId(giftEdit[i].href) == itemEditIds[j]) {
+                // giftEdit[i].style.display = 'none';
+                if (giftEdit[i].parentNode)
+                    giftEdit[i].parentNode.removeChild(giftEdit[i]);
+            }
+        }
+    }
+
+    var itemIds = response.item_ids;
+    var itemIds = itemIds.split(',');
+    //Disable qty
+    var giftQty = $$('input[class^=\'input-text qty\']');
+    for (var i = 0; i < giftQty.length; i++) {
+        for (var j = 0; j < itemIds.length; j++) {
+            if (getGiftItemId(giftQty[i].name) == itemIds[j]) {
+                giftQty[i].readOnly = true;
+                giftQty[i].style.background = 'none';
+                giftQty[i].style.border = 'none';
+            }
+        }
+    }
+}
+
+function reloadCatalogRule(response) {
+    var loader = document.getElementById('promotionalgift-loader-catalog');
+    var overDiv = document.getElementById('promotional-over-catalog');
+    var slider = $('update_promotional_gift_category_rule');
+    var parentDiv = slider.parentNode;
+    var stringRuleProduct = response.catalog_rule_product;
+    loader.style.display = 'block';
+    var loaderHeight = $('promotional-over-catalog').getHeight() + 'px';
+    loader.style.height = loaderHeight;
+    var loaderCart = document.getElementById('promotionalgift-loader');
+    if (loaderCart) {
+        loaderCart.style.height = loaderHeight;
+        loaderCart.style.display = 'block';
+    }
+    if (stringRuleProduct) {
+        parentDiv.removeChild(slider);
+        parentDiv.innerHTML = parentDiv.innerHTML + response.catalog_gift_html;
+        //reset tooltip
+        var arrayRuleProduct = stringRuleProduct.split(',');
+        for (var i = 0; i < arrayRuleProduct.length; i++) {
+            var promotional_image = 'category_promotional_image_' + arrayRuleProduct[i];
+            var cgift_info = 'category_sgift_information_' + arrayRuleProduct[i];
+            var isMobile1 = navigator.userAgent.match(/iPhone|iPad|iPod/i) || navigator.userAgent.match(/Android/i) || navigator.userAgent.match(/BlackBerry/i) || navigator.userAgent.match(/Opera Mini/i) || navigator.userAgent.match(/IEMobile/i);
+            if (isMobile1 === null) {
+                if (promotional_image && cgift_info) {
+                    if ($(promotional_image)) {
+                        new Tooltip(promotional_image, cgift_info);
+                    }
+                    else {
+                        $('promotional-over-catalog').style.display = 'none';
+                    }
+                }
+            } else {
+                $(cgift_info).addClassName('notshow');
+            }
+        }
+
+        //reset for Promotionalgift Ajax Free Cart Page
+        $$('.addgift').each(function (el) {
+            el.observe('mousedown', function (event) {
+                ajaxcartEvent = event.element();
+            });
+        });
+        setTimeout(function () {
+            $('promotionalgift-loader-catalog').style.display = 'none';
+            var loaderCart = document.getElementById('promotionalgift-loader');
+            if (loaderCart) {
+                loaderCart.style.display = 'none';
+            }
+        }, 2000);
+        overDiv.style.display = 'block';
+
+    } else {
+        loader.style.display = 'none';
+        overDiv.style.display = 'none';
+    }
+}
+
+function reloadShoppingCartRule(response,loadEffect) {
+    //variable define
+	loadEffect = typeof loadEffect !== 'undefined' ? loadEffect : true;
+    var loader = $('promotionalgift-loader');
+    var overDiv = $('promotional-over');
+    var slider = $('update_promotional_gift');
+    var parentDiv = slider.parentNode;
+    var stringRuleIds = response.rule_ids;
+	if(loadEffect){
+		loader.style.height = overDiv.getHeight() + 'px';
+    //show loader
+		setTimeout(function () {
+			$('promotionalgift-loader').style.display = 'block';
+			$('promotionalgift-loader').style.height = overDiv.getHeight() + 'px';
+			var loaderCatalog = document.getElementById('promotionalgift-loader-catalog');
+			if (loaderCatalog) {
+				loaderCatalog.style.height = overDiv.getHeight() + 'px';
+				loaderCatalog.style.display = 'block';
+			}
+		}, 210);
+	}
+    //action in page
+    if (stringRuleIds) {
+        parentDiv.removeChild(slider);
+        parentDiv.innerHTML = parentDiv.innerHTML + response.shopping_gift_html;
+        var arrayRuleIds = stringRuleIds.split(',');
+        arrayRuleIds.forEach(function (entry) {
+            //reset jcarousel
+            var string = 'promotional-shoppingcart-table-' + entry;
+            var object = document.getElementById(string);
+
+            //hide slide show if there are multiple rules
+            if (arrayRuleIds.length > 1) {
+                var promotionalDiv = 'promotional-srule-' + entry;
+                if (response.rule_id !== entry) {
+                    $(promotionalDiv).style.display = 'none';
+                }
+            }
+
+
+            //check mobile
+            var isMobile = navigator.userAgent.match(/iPhone|iPad|iPod/i) || navigator.userAgent.match(/Android/i) || navigator.userAgent.match(/BlackBerry/i) || navigator.userAgent.match(/Opera Mini/i) || navigator.userAgent.match(/IEMobile/i);
+            if (isMobile != null) {
+                $(string).addClassName('mobile');
+                var ul_tag = $$('#' + string + ' ul')[0];
+                var li_tag = $$('#' + string + ' ul li');
+                var li_width = 190 + 20;
+                var ul_width = li_tag.length * li_width;
+                ul_tag.setStyle({
+                    width: ul_width + 'px'
+                });
+            }
+
+            //reset tooltip
+            var stringRuleProduct = response.shopping_rule_product;
+            var arrayRuleProduct = stringRuleProduct.split(',');
+            for (var i = 0; i < arrayRuleProduct.length; i++) {
+                var promotional_image = 'promotional_image_' + arrayRuleProduct[i];
+                var sgift_info = 'sgift_information_' + arrayRuleProduct[i];
+                if (isMobile == null) {
+                    new Tooltip(promotional_image, sgift_info);
+                } else {
+                    $(sgift_info).addClassName('notshow');
+                }
+            }
+        });
+        //reset for Promotionalgift Ajax Free Cart Page
+        $$('.addgift').each(function (el) {
+            el.observe('mousedown', function (event) {
+                ajaxcartEvent = event.element();
+            });
+        });
+
+        setTimeout(function () {
+            $('promotionalgift-loader').style.display = 'none';
+            var loaderCatalog = document.getElementById('promotionalgift-loader-catalog');
+            if (loaderCatalog) {
+                loaderCatalog.style.display = 'none';
+            }
+        }, 1000);
+
+    } else {
+        loader.style.display = 'none';
+        overDiv.style.display = 'none';
+    }
+
+}
+
+function ajaxcartUpdateCartHtml(pageDest, aCache) {
+    var shoppingCartTable = pageDest.down('.cart-table');
+    if (shoppingCartTable) {
+        var cartTableHtml = '';
+        if (aCache.down('#shopping-cart-table'))
+            cartTableHtml = aCache.down('#shopping-cart-table').parentNode.innerHTML;
+        $(shoppingCartTable.parentNode).update(cartTableHtml);
+    }
+
+    var crossSell = pageDest.down('.crosssell');
+    if (crossSell) {
+        var crossSellHtml = '';
+        if (aCache.down('.crosssell'))
+            crossSellHtml = aCache.down('.crosssell').parentNode.innerHTML;
+        $(crossSell.parentNode).update(crossSellHtml);
+    }
+
+    if (pageDest.down('.discount-form') && aCache.down('.discount-form'))
+        pageDest.down('.discount-form').update(aCache.down('.discount-form').innerHTML);
+
+    var cacheShippingForm = aCache.down('#co-shipping-method-form');
+    if (cacheShippingForm) {
+        if (pageDest.down('#co-shipping-method-form'))
+            pageDest.down('#co-shipping-method-form').update(cacheShippingForm.innerHTML);
+        else if (pageDest.down('.shipping-form'))
+            pageDest.down('.shipping-form').appendChild(cacheShippingForm);
+    }
+
+    if (pageDest.down('.totals') && aCache.down('.totals'))
+        pageDest.down('.totals').update(aCache.down('.totals').innerHTML);
+
+    if (miniCart && aCache.down('<?php echo $_helper->getMiniCartClass() ? $_helper->getMiniCartClass() : 'none' ?>')) {
+        var miniCartHtml = aCache.down('<?php echo $_helper->getMiniCartClass() ? $_helper->getMiniCartClass() : 'none' ?>').innerHTML;
+        miniCart.each(function (mnc) {
+            mnc.update(miniCartHtml);
+        });
+    }
+
+    if (pageDest.down('ul.messages') && aCache.down('ul.messages'))
+        pageDest.down('ul.messages').update(aCache.down('ul.messages').innerHTML);
+
+    $$('button').each(function (el) {
+        el.observe('mousedown', function (event) {
+            ajaxcartEvent = event.element();
+        });
+    });
+    updateJscartEventEdit();
+}
+
+function ajaxUpdateFormAction() {
+//            $$('a').each(function (el) {
+//                var freeItemIds = '<?php echo $freeItemIds ?>';
+//                var itemIds = freeItemIds.split(',');
+//                for (var i = 0; i < itemIds.length; i++) {
+//                    if (el.href.search('/checkout/cart/configure/id/' + itemIds[i]) != -1) {
+//                        el.onclick = ajaxcartConfigItem;
+//                    }
+//                }
+//            });
+}
+
+function ajaxUpdatePostAction(event) {
+    $('ajaxcart-pop-up').show();
+    var proElement = this.up('tr');
+    var content = $('ajaxcart-content');
+    content.innerHTML = '';
+    var pContent = document.createElement('div');
+    pContent.className = 'ajaxcart-preload';
+    content.appendChild(pContent);
+    pContent = content.down('.ajaxcart-preload');
+    pContent.appendChild(Element.clone($('ajaxcart-load-ajax').down('.ajaxcart-loading'), 1));
+    var spanEl = pContent.down('.ajaxcart-loading').down('span');
+    if (isIE)
+        spanEl.innerText = '<?php echo $this->__('Updating Shopping Cart') ?>' + '...';
+    else
+        spanEl.innerHTML = '<?php echo $this->__('Updating Shopping Cart') ?>' + '...';
+    ajaxcart.updatePopupBox(content);
+    ajaxcart.addToCartHandle(this.form.action, this.form.serialize());
+    event.stop();
+}
+
+function ajaxcartDeleteItem(event) {
+    if (!confirm('<?php echo $this->__('Are you sure you would like to remove this item from the shopping cart?') ?>')) {
+        return false;
+    }
+    $('ajaxcart-pop-up').show();
+    var proElement = this.up('tr');
+    var content = $('ajaxcart-content');
+    content.innerHTML = '';
+    var pContent = document.createElement('div');
+    pContent.className = 'ajaxcart-preload';
+    content.appendChild(pContent);
+    pContent = content.down('.ajaxcart-preload');
+    pContent.appendChild(Element.clone($('ajaxcart-load-ajax').down('.ajaxcart-loading'), 1));
+    var productName = proElement.down('.product-name');
+    if (productName) {
+        var aName = productName.down('a');
+        if (aName) {
+            var spanEl = pContent.down('.ajaxcart-loading').down('span');
+            if (isIE)
+                spanEl.innerText = '<?php echo $this->__('Removing') ?> ' + aName.innerHTML + ' <?php echo $this->__('from cart') ?>...';
+            else
+                spanEl.innerHTML = '<?php echo $this->__('Removing') ?> ' + aName.innerHTML + ' <?php echo $this->__('from cart') ?>...';
+        }
+    }
+    ajaxcart.updatePopupBox(content);
+    ajaxcart.addToCartHandle(this.href, '');
+    return false;
+}
+
+function ajaxcartConfigItem(event) {
+    var proElement = this.up('tr');
+    $('ajaxcart-pop-up').show();
+    var content = $('ajaxcart-content');
+    content.innerHTML = '';
+    var pContent = document.createElement('div');
+    // alert(pContent);
+    pContent.className = 'ajaxcart-preload';
+    content.appendChild(pContent);
+    pContent = content.down('.ajaxcart-preload');
+
+    var productImage = proElement.down('.product-image');
+    // alert(productImage);
+    if (productImage) {
+        pContent.appendChild(Element.clone(productImage, 1));
+        productImage = pContent.down('img');
+        productImage.width = 100;
+        productImage.height = 100;
+    }
+    var productInfo = document.createElement('div');
+    productInfo.className = 'item-product-info';
+    pContent.appendChild(productInfo);
+    var productName = proElement.down('.product-name');
+    if (productName)
+        productInfo.appendChild(Element.clone(productName, 1));
+    var productPrice = proElement.down('.price');
+    if (productPrice)
+        productInfo.appendChild(Element.clone(productPrice, 1));
+
+    pContent.appendChild(Element.clone($('ajaxcart-load-ajax').down('.ajaxcart-loading'), 1));
+
+    ajaxcart.updatePopupBox(content);
+    ajaxcart.addToCartHandle(this.href, '');
+    return false;
+}
+
+function ajaxPostFormAction(event) {
+    $('ajaxcart-pop-up').show();
+    var proElement = this.up('tr');
+    var content = $('ajaxcart-content');
+    content.innerHTML = '';
+    var pContent = document.createElement('div');
+    pContent.className = 'ajaxcart-preload';
+    content.appendChild(pContent);
+    pContent = content.down('.ajaxcart-preload');
+    pContent.appendChild(Element.clone($('ajaxcart-load-ajax').down('.ajaxcart-loading'), 1));
+    var spanEl = pContent.down('.ajaxcart-loading').down('span');
+    if (isIE)
+        spanEl.innerText = '<?php echo $this->__('Updating total') ?>' + '...';
+    else
+        spanEl.innerHTML = '<?php echo $this->__('Updating total') ?>' + '...';
+    ajaxcart.updatePopupBox(content);
+    ajaxcart.addToCartHandle(this.form.action, this.form.serialize());
+    event.stop();
+}
+function ajaxMoreTemplateJs() {
+    if ($('ajaxcart-content').down('.ajaxcart-loading'))
+        $('ajaxcart-content').down('.ajaxcart-loading').hide();
+    if ($('ajaxcart-content').down(".paypal-logo"))
+        $('ajaxcart-pop-up').down(".paypal-logo").hide();
+    if ($('ajaxcart-content').down(".add-to-links"))
+        $('ajaxcart-pop-up').down(".add-to-links").hide();
+    $$('#ajaxcart-content button').each(function (el) {
+        el.observe('mousedown', function (event) {
+            ajaxcartEvent = event.element();
+        })
+    });
+}
+ajaxcartTemplateJs = ajaxMoreTemplateJs;
+
+</script>
+
+</div>
+
+
+<?php //endif  ?>

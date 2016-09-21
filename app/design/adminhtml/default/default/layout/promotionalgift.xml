@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Magestore
+ * 
+ * NOTICE OF LICENSE
+ * 
+ * This source file is subject to the Magestore.com license that is
+ * available through the world-wide-web at this URL:
+ * http://www.magestore.com/license-agreement.html
+ * 
+ * DISCLAIMER
+ * 
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ * 
+ * @category    Magestore
+ * @package     Magestore_Promotionalgift
+ * @copyright   Copyright (c) 2012 Magestore (http://www.magestore.com/)
+ * @license     http://www.magestore.com/license-agreement.html
+ */
+-->
+<layout version="0.1.0">
+    <default>
+        <reference name="head">
+            <action method="addJs">
+                <script>magestore/promotionalgift/jscolor/jscolor.js</script>
+            </action>
+        </reference>
+    </default>
+    <!-- Catalog rule -->
+    <adminhtml_promotionalgift_catalogrule_index>
+        <reference name="content">
+            <block type="promotionalgift/adminhtml_catalogrule" name="catalogrule"/>
+        </reference>
+    </adminhtml_promotionalgift_catalogrule_index>
+    <adminhtml_promotionalgift_catalogrule_giftitem>
+        <block type="core/text_list" name="root">
+            <block type="promotionalgift/adminhtml_catalogrule_edit_tab_giftitem"
+                   name="promotionalgift.catalogrule.edit.tab.giftitem"/>
+            <block type="adminhtml/widget_grid_serializer" name="related_grid_serializer">
+                <action method="initSerializerBlock">
+                    <grid_block_name>promotionalgift.catalogrule.edit.tab.giftitem</grid_block_name>
+                    <data_callback>getSelectedRelatedGiftitems</data_callback>
+                    <hidden_input_name>catalogrule_giftitem</hidden_input_name>
+                    <reload_param_name>pcgiftitem</reload_param_name>
+                </action>
+                <action method="addColumnInputName">
+                    <input_name>gift_qty</input_name>
+                </action>
+            </block>
+        </block>
+    </adminhtml_promotionalgift_catalogrule_giftitem>
+    <adminhtml_promotionalgift_catalogrule_giftitemgrid>
+        <block type="core/text_list" name="root">
+            <block type="promotionalgift/adminhtml_catalogrule_edit_tab_giftitem"
+                   name="promotionalgift.catalogrule.edit.tab.giftitem"/>
+        </block>
+    </adminhtml_promotionalgift_catalogrule_giftitemgrid>
+
+    <!--end catalog rule-->
+
+    <!-- Shoppingcart rule -->
+    <adminhtml_promotionalgift_shoppingcartrule_index>
+        <reference name="content">
+            <block type="promotionalgift/adminhtml_shoppingcartrule" name="shoppingcartrule"/>
+        </reference>
+    </adminhtml_promotionalgift_shoppingcartrule_index>
+    <adminhtml_promotionalgift_shoppingcartrule_giftitem>
+        <block type="core/text_list" name="root">
+            <block type="promotionalgift/adminhtml_shoppingcartrule_edit_tab_giftitem"
+                   name="promotionalgift.shoppingcartrule.edit.tab.giftitem"/>
+            <block type="adminhtml/widget_grid_serializer" name="related_grid_serializer">
+                <action method="initSerializerBlock">
+                    <grid_block_name>promotionalgift.shoppingcartrule.edit.tab.giftitem</grid_block_name>
+                    <data_callback>getSelectedRelatedGiftitems</data_callback>
+                    <hidden_input_name>shoppingcartrule_giftitem</hidden_input_name>
+                    <reload_param_name>psgiftitem</reload_param_name>
+                </action>
+                <action method="addColumnInputName">
+                    <input_name>gift_qty</input_name>
+                </action>
+            </block>
+        </block>
+    </adminhtml_promotionalgift_shoppingcartrule_giftitem>
+    <adminhtml_promotionalgift_shoppingcartrule_giftitemgrid>
+        <block type="core/text_list" name="root">
+            <block type="promotionalgift/adminhtml_shoppingcartrule_edit_tab_giftitem"
+                   name="promotionalgift.shoppingcartrule.edit.tab.giftitem"/>
+        </block>
+    </adminhtml_promotionalgift_shoppingcartrule_giftitemgrid>
+
+    <!--end shoppingcart rule-->
+
+    <!-- option promotionalgift -->
+    <!-- banner-->
+    <adminhtml_promotionalgift_banner_index>
+        <reference name="content">
+            <block type="promotionalgift/adminhtml_banner" name="banner"/>
+        </reference>
+    </adminhtml_promotionalgift_banner_index>
+
+
+    <!-- end banner -->
+    <!-- end option promotionalgift -->
+</layout>

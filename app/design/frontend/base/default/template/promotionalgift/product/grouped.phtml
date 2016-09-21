@@ -1,0 +1,168 @@
+<?php
+/**
+ * ajaxcart template
+ */
+?>
+
+<?php $_helper = Mage::helper('promotionalgift') ?>
+<?php $_product = $this->getProduct(); ?>
+<script type="text/javascript">
+    var optionsPrice = new Product.OptionsPrice(<?php echo $this->getJsonConfig() ?>);
+</script>
+<a href="#" title="<?php echo $this->__('Close') ?>" class="close-popup" alt="<?php echo $this->__('Close') ?>"
+   onclick="closeAjaxPopup();return false;"><em><?php echo $this->__('Close') ?></em></a>
+<form action="<?php echo $this->getSubmitUrl($_product) ?>" method="post"
+      id="product_addtocart_form"<?php if ($_product->getOptions()): ?> enctype="multipart/form-data"<?php endif; ?>>
+    <div style="margin: 18px;">
+        <?php echo $this->getStartFormHtml() ?>
+    </div>
+    <div class="no-display">
+        <input type="hidden" name="product" value="<?php echo $_product->getId() ?>"/>
+        <input type="hidden" name="related_product" id="related-products-field" value=""/>
+    </div>
+    <?php if ($this->hasOptions()): ?>
+        <?php echo $this->getOptionsWrapperHtml() ?>
+    <?php endif ?>
+    <div style="margin: 15px 24px 15px 24px; float: right;">
+        <?php echo $this->getOptionsWrapperBottomHtml() ?>
+    </div>
+    <?php echo $this->getEndFormHtml() ?>
+</form>
+<div style="display: none;">
+    <div id="ajaxcart-add-loading" class="ajaxcart-add-loading">
+        <img alt="<?php echo $this->__('Adding to cart') ?>..." src="<?php echo $this->getUrlImage(); ?>"/>
+        <span><?php echo $this->__('Adding to cart') ?>...</span>
+    </div>
+</div>
+<script type="text/javascript">
+    //<![CDATA[
+    if ($('product_addtocart_form').down('p.availability')) {
+        (function () {
+            var removeEl = $('product_addtocart_form').down('p.availability');
+            var parentEl = $(removeEl.parentNode);
+            parentEl.removeChild(removeEl);
+        })();
+    }
+    var productAddToCartForm = new VarienForm('product_addtocart_form');
+    productAddToCartForm.submit = function (button, url) {
+        if (!checkQtyProduct()) {
+            showAlertBox();
+            return (0);
+        }
+        if (this.validator.validate()) {
+            var form = this.form;
+            var oldUrl = form.action;
+            if (url) {
+                form.action = url;
+            }
+            var e = null;
+            try {
+                // Inline add to cart
+                var sBtn = $(button);
+                sBtn.hide();
+                sBtn.parentNode.appendChild(Element.clone($('ajaxcart-add-loading'), 1));
+                // Adding to cart animation
+                <?php /*if (!$this->isEditItem() && $_helper->getConfig('allow_animation')): ?>
+                    <?php if ($_helper->getConfig('animation_target')): ?>
+                                            var target = $$('.top-link-cart').first();
+                                            if (target) target = $(target.parentNode);
+                    <?php else: ?>
+                                            var target = $$('<?php echo $_helper->getMiniCartClass() ? $_helper->getMiniCartClass() : 'none' ?>').first();
+                    <?php endif ?>
+                                        var urlCurent = '<?php echo $this->isCartPage(); ?>';
+                                        if (urlCurent.search('isajaxcartpage') == -1){
+                                            if (target && $('ajaxcart-content').down('.product-image')) {
+                                                new AjaxcartAnimation('ajaxcart-animation', target, true, $('ajaxcart-content').down('.product-image'), function() {
+                                                    ajaxcart.allowFinish = true;
+                                                    if (ajaxcart.responseCache) ajaxcart.addToCartFinish(ajaxcart.responseCache);
+                                                });
+                //                                ajaxcart.allowFinish = false;
+                                            }
+                                        }
+
+                <?php endif */?>
+                var inputElements = Form.getElements(form);
+                var formElements = [];
+                var el;
+                for (var i = 0; i < inputElements.length; i++) {
+                    el = inputElements[i];
+                    if (el.value == '') {
+                        continue;
+                    }
+                    formElements[formElements.length] = el;
+                }
+                ajaxcart.addToCartHandle(form.action, Form.serializeElements(formElements));
+                // ajaxcart.addToCartHandle(form.action,form.serialize());
+            } catch (e) {
+            }
+            this.form.action = oldUrl;
+            if (e) {
+                throw e;
+            }
+            if (button && button != 'undefined') {
+                button.disabled = true;
+            }
+        }
+    }.bind(productAddToCartForm);
+
+    if ($('ajaxcart-content').down('button.btn-cart')) {
+        $('ajaxcart-content').down('button.btn-cart').onclick = function (event) {
+            productAddToCartForm.submit(this);
+        }
+    }
+
+    productAddToCartForm.submitLight = function (button, url) {
+        if (this.validator) {
+            var nv = Validation.methods;
+            delete Validation.methods['required-entry'];
+            delete Validation.methods['validate-one-required'];
+            delete Validation.methods['validate-one-required-by-name'];
+            if (this.validator.validate()) {
+                if (url) {
+                    this.form.action = url;
+                }
+                // Inline add to cart
+                var sBtn = $(button);
+                sBtn.hide();
+                sBtn.parentNode.appendChild(Element.clone($('ajaxcart-add-loading'), 1));
+                ajaxcart.addToCartHandle(this.form.action, this.form.serialize());
+            }
+            Object.extend(Validation.methods, nv);
+        }
+    }.bind(productAddToCartForm);
+
+    function checkQtyProduct() {
+        var inputQty = $$('input[class="input-text qty"][type="text"]');
+
+        var arrayQty = new Array();
+        if (isIE) {
+            var count = 0;
+            var length = inputQty.length;
+            for (var i = 0; i < length; i++) {
+                if (inputQty[i].size == 20) {
+                    arrayQty[count++] = inputQty[i];
+                }
+            }
+            for (var i = 0; i < arrayQty.length; i++) {
+                var qty = parseInt(arrayQty[i].value);
+                if (qty > 0 && qty < 1000)
+                    return true;
+            }
+            return false;
+        } else {
+            for (var i = 0; i < inputQty.length; i++) {
+                var qty = parseInt(inputQty[i].value);
+                if (qty > 0 && qty < 1000)
+                    return true;
+            }
+            return false;
+        }
+
+    }
+    function showAlertBox() {
+        if (!checkQtyProduct())
+            alert('Please specify the product quantity!');
+    }
+    //    
+    //]]>
+</script>

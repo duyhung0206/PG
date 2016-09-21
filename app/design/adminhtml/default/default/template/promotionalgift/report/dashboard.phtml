@@ -1,0 +1,85 @@
+<script type="text/javascript">
+    //<![CDATA[
+    function changeDiagramsPeriod(periodObj) {
+        periodParam = periodObj.value ? 'period/' + periodObj.value + '/' : '';
+        ajaxBlockParam = 'block/adminhtml_reportcartrule_giftorder/';
+        ajaxBlockUrl = '<?php echo $this->getUrl('*/*/ajaxBlock', array('_current' => true, 'block' => '', 'period' => '')) ?>' + ajaxBlockParam + periodParam;
+        new Ajax.Request(ajaxBlockUrl, {
+            parameters: {isAjax: 'true', form_key: FORM_KEY},
+            onSuccess: function (transport) {
+                tabContentElementId = 'diagram_tab_content';
+                try {
+                    if (transport.responseText.isJSON()) {
+                        var response = transport.responseText.evalJSON()
+                        if (response.error) {
+                            alert(response.message);
+                        }
+                        if (response.ajaxExpired && response.ajaxRedirect) {
+                            setLocation(response.ajaxRedirect);
+                        }
+                    } else {
+                        $(tabContentElementId).update(transport.responseText);
+                    }
+                }
+                catch (e) {
+                    $(tabContentElementId).update(transport.responseText);
+                }
+            }
+        });
+        ajaxBlockUrl = '<?php echo $this->getUrl('*/*/ajaxBlock', array('_current' => true, 'block' => '', 'period' => '')) ?>' + periodParam;
+        new Ajax.Request(ajaxBlockUrl, {
+            parameters: {isAjax: 'true', form_key: FORM_KEY},
+            onSuccess: function (transport) {
+                tabContentElementId = 'dashboard_diagram_totals';
+                try {
+                    if (transport.responseText.isJSON()) {
+                        var response = transport.responseText.evalJSON()
+                        if (response.error) {
+                            alert(response.message);
+                        }
+                        if (response.ajaxExpired && response.ajaxRedirect) {
+                            setLocation(response.ajaxRedirect);
+                        }
+                    } else {
+                        $(tabContentElementId).replace(transport.responseText);
+                    }
+                }
+                catch (e) {
+                    $(tabContentElementId).replace(transport.responseText);
+                }
+            }
+        });
+    }
+
+
+    //]]>
+</script>
+
+<div class="content-header">
+    <table cellspacing="0">
+        <tr>
+            <td>
+                <h3 class="head-dashboard customerreward-statistic-head"><?php echo $this->__('Chart Report Manager') ?></h3>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div class="dashboard-container customerreward-statistic-container">
+    <table cellspacing="25" width="100%">
+        <tr>
+            <td>
+                <div class="entry-edit">
+                    <div id="diagram_tab_content">
+                        <?php echo $this->getChildHtml('gift-order') ?>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+<script type="text/javascript">
+    //<![CDATA[
+    $('report_giftorder_period').value = '7d';
+    //]]>
+</script>

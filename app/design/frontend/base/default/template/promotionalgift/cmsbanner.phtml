@@ -1,0 +1,33 @@
+<ul class="promotionalgift-cms-banner">
+    <?php
+    $banners = $this->avaibleBanner();
+    if (count($banners) && $banners !== false):
+        foreach ($banners as $banner):
+            $id = $banner->getBannerId();
+            $name = $banner->getName();
+            $cmsId = $banner->getCmsblock();
+            $cmsContent = $this->variableCms($cmsId);
+            $isCart = $banner->getIsCart();
+            $isOnepage = $banner->getIsOnepage();
+            $router = Mage::app()->getRequest()->getRouteName();
+            $controller = Mage::app()->getRequest()->getControllerName();
+            $content="<li><span>" . $cmsContent . "</span></li>";
+            //in cart
+            if ($router == 'checkout' && $controller == 'cart' && $isCart == 1)
+            {
+                echo $content;
+            }
+            //in onepage
+            if ($router == 'checkout' && $controller == 'onepage' && $isOnepage == 1)
+            {
+                echo $content;
+            }
+            //other page using code
+            if($router !== 'checkout')
+            {
+                echo $content;
+            }
+        endforeach;//end forach banner
+    endif;//endif banners
+    ?>
+</ul>

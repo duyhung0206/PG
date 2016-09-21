@@ -1,0 +1,98 @@
+<?php if (Mage::helper('promotionalgift')->enablePromotionalgift()
+    && Mage::getStoreConfig('promotionalgift/general/showfreegiftoncat', Mage::app()->getStore()->getId())
+): ?>
+    <style>
+        .tootip-head h3 {
+            text-align: left;
+        }
+
+        .tootip-head div {
+            text-align: left;
+        }
+
+        .tootip-product-list {
+            float: left;
+        }
+    </style>
+    <?php
+    $icon_image = Mage::helper('promotionalgift')->getPromotionalIcon();
+    $iconUrl = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA) . 'promotionalgift/giftlabel/' . $icon_image;
+
+    $layer = Mage::registry('current_layer');
+    if (!$layer) {
+        if ($this->getRequest()->getRouteName() == 'catalogsearch') {
+            $layer = Mage::getSingleton('catalogsearch/layer');
+        } else {
+            $layer = Mage::getSingleton('catalog/layer');
+        }
+    }
+    $_productCollection = $layer->getProductCollection();
+    ?>
+    <!--tooltip-->
+    <?php foreach ($_productCollection as $_product): ?>
+        <?php $catalogRule = $this->getRuleByPruduct($_product->getId()); ?>
+        <?php if ($catalogRule): ?>
+            <?php
+            if ($catalogRule->getImage()) {
+                $showGiftLabel = Mage::getStoreConfig('promotionalgift/general/showgiftlabel', Mage::app()->getStore()->getId());
+                if ($showGiftLabel) {
+                    $icon_image = true;
+                    $iconUrl = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA) . 'promotionalgift/label/' . $catalogRule->getImage();
+                }
+            } else {
+                $icon_image = Mage::helper('promotionalgift')->getPromotionalIcon();
+                $iconUrl = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA) . 'promotionalgift/giftlabel/' . $icon_image;
+            }
+            ?>
+            <script type="text/javascript">
+                $$('.category-products a.product-image').each(function (el) {
+                    if (el.href) {
+                        <?php $productUrl = $_product->getProductUrl(); ?>
+                        <?php $productUrl = str_replace('http://','',$productUrl); ?>
+                        <?php $productUrl = str_replace('https://','',$productUrl); ?>
+                        if ((el.href == 'http://' + '<?php echo $productUrl; ?>')
+                            || el.href == 'https://' + '<?php echo $productUrl; ?>'
+                        ) {
+                            el.id = 'product_<?php echo $_product->getId(); ?>';
+                            <?php if(!empty($icon_image)):?>
+                            el.innerHTML = el.innerHTML + '<img class="gift-icon" width="50px" src="<?php echo $iconUrl; ?>" alt="Promotional Gift Label">';
+                            <?php endif;?>
+                        }
+                    }
+                });
+            </script>
+
+            <div id="gift_information_<?php echo $_product->getId() ?>" class="gift-tootip"
+                 style="visibility: visible;text-align: left;">
+                <div class="tootip-title">
+                    <?php if (!empty($icon_image)): ?>
+                        <img width="50px" class="gift-tootip-icon" src="<?php echo $iconUrl; ?>"/>
+                    <?php endif; ?>
+                    <div class="tootip-head">
+
+                        <?php $ruleName = $catalogRule->getName(); ?>
+                        <?php $ruleDescription = $catalogRule->getDescription(); ?>
+                        <h3><?php echo $ruleName ?></h3>
+
+                        <div><?php echo $ruleDescription ?></div>
+                    </div>
+                </div>
+                <div class="tootip-content">
+                    <div class="tootip-product-list">
+                        <?php foreach ($this->getFreeGifts($_product->getId(), $catalogRule->getId()) as $productId): ?>
+                            <?php $giftProduct = Mage::getModel('catalog/product')->load($productId); ?>
+                            <?php if ($giftProduct->getStatus() != 2): ?>
+                                <img class="tootip-content-img"
+                                     src="<?php echo Mage::helper('catalog/image')->init($giftProduct, 'small_image')->resize(50); ?>"
+                                     width="60" height="60"/>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                var giftTootip_<?php echo $_product->getId()?> = new Tooltip('product_<?php echo $_product->getId()?>', 'gift_information_<?php echo $_product->getId()?>');
+            </script>
+        <?php endif; ?>
+    <?php endforeach; ?>
+<?php endif ?>

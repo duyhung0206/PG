@@ -1,0 +1,125 @@
+.main-container{position:static!important}
+.main-container .product-options p.required{position:static}
+.list{display:none!important}
+.srule-title{border-bottom:1px solid #ededed;margin:10px 0}
+.crule-title{border-bottom:1px solid #ededed;float:left;width:100%}
+.srule-title h1,.crule-title h1{height:30px}
+.srule-list{margin-left:20px;margin-bottom:35px}
+#promotional-gift-search-form .validation-advice{float:left}
+.gift-icon{top:0;right:0;position:absolute;width:33%!important}
+.gift-image{position:relative}
+.gift-tootip-icon{padding:5px 0 0 5px;float:left}
+.tootip-head{float:left;padding:10px 0 0 10px;width:75%}
+#promotional-gift-items-add button{cursor:pointer;color:#fff;clear:both;border:none;padding:8px;margin-top:10px;font-weight:700;text-indent:60px;background:url(../../images/promotionalgift/gift-icon.png) no-repeat scroll 0 center #FF6840}
+.tootip-title{float:left;width:100%;padding-bottom:10px;border-bottom:1px dashed #A2A2A2}
+.tootip-content{float:left;clear:both;width:100%;margin-left:4px}
+.tootip-product-list{padding:5px}
+.tootip-content-img{padding:5px;margin-bottom:3px;border:1px solid #D4D4D4;display:inline-block}
+.promotional-srule{width:100%;display:block;border:1px solid #ededed;background-color:#fff;position:relative}
+#update_promotional_gift{border:1px solid #ededed;margin-bottom:25px;background:#FFF;float:left;width:100%}
+.loader_pag{
+	top: 45px;
+    position: absolute;
+    margin-left: 50%;
+	z-index: 16000 !important;
+	display : none;
+}
+.loader_pag img{
+	width: 30px;
+}
+.promotional-title{background:#FFF;border-bottom:1px solid #ededed;color:#0A263C;font-size:12px;padding:0;position: relative;}
+.promotional-title .link_paginator{top:10px;right:10px;position: absolute;z-index:9}
+.promotional-title .link_paginator #next_rule{    display: inline-block; cursor: pointer;}
+.promotional-title .link_paginator #previous_rule{ display: inline-block;cursor: pointer;}
+.promotional-title .link_paginator button{	
+	background: none;
+	border: none;
+	color: #4747E2
+}
+.disable_class{
+	color: grey !important;
+}
+.promotional-title-hide{background:none repeat scroll 0 0 #FFF;color:#0A263C;font-size:12px;padding:10px}
+.promotional-title .main-title{background:url(../../images/promotionalgift/gift-icon.png) no-repeat scroll 0 center #ff6840;display:block;padding:10px 0 10px 28px;font-size:14px;color:#fff;font-weight:700;text-indent:45px}
+.promotional-title .link-title{color:#39c;font-size:14px;font-weight:700;background:#f9f9f9;display:block;width:100%;padding:8px 0;text-decoration:none}
+.promotional-title .link-title:hover,.promotional-title .link-title:focus{outline:none;opacity:.9;filter:alpha(opacity=90)}
+.mobile{float:left;width:100%;overflow-y:hidden;overflow-x:auto}
+.notshow{display:none}
+.mobile ul li{float:left;margin:10px 10px 20px;width:190px}
+.promotional-title .link-title span{padding:10px;}
+.owl-theme .owl-controls .owl-page span{width:8px;height:8px}
+.promotional-title .link-title.active span{padding:10px;}
+.promotional-title-hide .main-title{background:url(../../images/promotionalgift/promotionalgift-scart.png) no-repeat scroll 0 0 transparent;display:block;padding:0 0 0 28px}
+#promotional-category-table{margin-top:-10px}
+h5.child-title,.promotional-title .child-title,.showcatalogrule .child-title{margin:10px 0 0;color:#636363;font-size:13px;font-weight:400;text-transform:none;padding-left:10px}
+#promotional-shoppingcart{padding:22px 25px 12px 33px;background:none repeat scroll 0 0 #FFF;height:191px;overflow:hidden;position:relative;text-align:center}
+#promotional-shoppingcart-table{height:190px}
+#promotional-shoppingcart-table ul li .item{width:98%}
+#promotional-shoppingcart-table ul li .product-name{color:#203548;font-size:13px;font-weight:700;margin:0 0 5px}
+#promotional-shoppingcart-table .product-checkbox{bottom:12px;text-align:center}
+#promotional-shoppingcart-table .price-box{text-align:center!important}
+.promotional-image{text-align:center;display:block!important;margin-bottom:5px;position:relative}
+.promotional-image .free-shipping{position:absolute;left:-8px;top:-8px;width:50px;height:50px;z-index:9;margin:0;padding:0}
+.qty-box .qty{font-size:13px}
+.promotional-image img{display:inline-block}
+.promotional-srule-container{background:none repeat scroll 0 0 #EFF5EA;border-radius:5px 5px 5px 5px;box-shadow:0 0 2px 1px #446423;color:#3D6611;font-size:18px;height:40px;margin-bottom:10px;padding-top:10px;text-align:center;width:100%}
+.promotional-button{height:30px;text-align:center}
+.stootip-head{float:left;padding:20px 0 0 20px;font-weight:700!important;width:100%}
+.stootip-title{float:left;width:100%;padding-bottom:10px}
+.stootip-content{float:left;clear:both;width:100%;margin-bottom:10px;text-align:left}
+.sgift-tootip{width:250px;background-color:#FFF;border:1px solid #ededed;border-radius:5px 5px 5px 5px;box-shadow:1px 1px 3px 1px #ededed;color:#2F2F2F}
+.stootip-product-name{font-size:15px!important;margin-left:20px;font-weight:700;width:85%}
+.stootip-rule-name{margin-left:20px;margin-top:15px;font-size:15px!important;width:85%}
+.stootip-product-qty{margin-left:20px;margin-top:15px;font-size:15px!important;width:85%}
+.stootip-head-title{width:85%;font-style:italic;font-size:15px;font-weight:700;border-bottom:1px dotted #959595;padding-bottom:10px}
+#ajaxcart-animation a{position:absolute}
+img.v-middle{display:inline-block}
+ul.promotionalgift-cms-banner{clear:both;display:block;width:100%;position:relative;overflow:hidden}
+ul.promotionalgift-cms-banner li{clear:both;display:block;width:100%;position:relative;overflow:hidden;margin-bottom:20px}
+ul.promotionalgift-cms-banner li img{max-width:100%}
+.title-promotion-gift{padding:8px 14px;margin:0;font-size:14px;background-color:#f7f7f7;border-bottom:1px solid #ebebeb;border-radius:5px 5px 0 0}
+.wrap-content-popover{padding:8px 14px}
+#promotional-over-catalog .popover-content{padding:0!important}
+#promotional-category-table .clickable,#promotional-category-table .owl-controls{display:block!important}
+#overlay{background:#000;opacity:.5;display:block;width:100%;height:100%;z-index:180;position:fixed;left:0;top:2000px}
+#promotional-gift-items-add{background:#ebebeb;padding:7px;text-align:left;margin-bottom:12px;line-height: 27px;clear:both}
+#promotional-gift-items-add .promotional-gift-link{text-transform: uppercase;cursor:pointer;font-size: 13px;font-weight: normal;color: #3399cc;text-decoration: underline;}
+#promotional-gift-items-add .promotional-gift-link:hover{color: #1F5C7B;text-decoration: none;}
+#promotional-gift-items-add .promotional-gift-link:before{background:url(../../images/promotionalgift/promotionalgift-scart.png) no-repeat left center;width:20px;height:20px; display:inline-block;content:'promotional';text-indent: -999em;overflow: hidden;margin-right:7px;vertical-align: middle;}
+#all_rules span{float:left;border:2px solid #fff;margin-right:20px;padding:50px;background-color:#f5deb3}
+.rule_title{font-weight:700}
+.promotional-srule .popover-title{font-weight:700}
+.free-shipping-label{background:url(../../images/promotionalgift/freeShip.png) no-repeat left center;width:45px;height:38px;display:block;text-indent:-999em;overflow:hidden}
+.product-options{position:inherit!important}
+.freegift{width:100%;display:inline-block;margin:10px 0;border:1px solid #e4e4e4}
+.product-tootip-title{border-bottom:1px dashed #A2A2A2;float:left;padding-bottom:10px;width:100%}
+.product-tootip-head{width:100%;float:left}
+#label-freegift{float:left;padding:10px 0 0 10px}
+.rule-name{float:left;padding:20px 0 0 20px;width:60%}
+.product-rule-description{float:left;clear:both;padding:0 0 0 69px}
+.product-tootip-content{clear:both;float:left;margin-left:4px;width:100%}
+.product-tootip-gift-list{padding:5px}
+.product-gift-image{width:auto!important;height:auto!important;text-decoration:none!important;display:inline-block!important;margin-bottom:5px}
+.product-gift-image img{border:1px solid #D4D4D4;padding:10px}
+.gift-tootip{background-color:#fff;border-radius:7px;box-shadow:2px 4px 17px #b3b8b7;border:1px solid #c7cbcc;padding:10px;width:230px}
+.tootip-title{border-bottom:1px dotted #959595;color:#2F2F2F;font-size:12px;font-style:italic;font-weight:700;margin-bottom:5px;padding:0 0 5px}
+.label-product{font-weight:700;font-style:italic;font-size:14px}
+.title-promotion-gift{padding:8px 14px;margin:0;font-size:14px;background-color:#f7f7f7;border-bottom:1px solid #ebebeb;border-radius:5px 5px 0 0}
+.popover-content img{margin:0 auto}
+.popover-content{padding:0}
+.wrap-content-popover{padding:8px 14px}
+.label{display: inline;padding: 0;font-size: 100%;font-weight: normal;line-height: 1.5em;color: #636363;text-align: center;white-space: nowrap;vertical-align: baseline;border-radius: 0;}
+.product-tootip-content .popover.top{width:200px!important}
+.no_gift{
+	    font-size: 16px;
+    font-family: cursive;
+    padding-left: 20px;
+}
+/*start edit 'require field' on product config popup -LOKI*/
+.product-options p.required{
+    position: relative !important;
+}
+.promotionalgift-index-index .owl-item .item{
+	margin:10px;
+}
+/*end LOKI*/

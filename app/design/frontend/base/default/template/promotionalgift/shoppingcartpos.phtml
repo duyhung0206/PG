@@ -1,0 +1,186 @@
+<?php
+/**
+ * Magestore
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Magestore.com license that is
+ * available through the world-wide-web at this URL:
+ * http://www.magestore.com/license-agreement.html
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Magestore
+ * @package     Magestore_Promotionalgift
+ * @copyright   Copyright (c) 2012 Magestore (http://www.magestore.com/)
+ * @license     http://www.magestore.com/license-agreement.html
+ */
+
+/**
+ * Promotionalgift template
+ *
+ * @see Magestore_Promotionalgift_Block_Shoppingcart
+ */
+?>
+<?php Mage::getModel('checkout/session')->setData('back_url_promotionalgift', Mage::helper('core/url')->getCurrentUrl()) ?>
+<input type="hidden" id="p_w" value="1715"/>
+<script type="text/javascript">
+    function getGiftEditItemId(name) {
+        var giftEdit = '';
+        var name = name.split('/id/');
+        var name = name[1].split('/');
+        giftEdit = name[0];
+        return giftEdit;
+    }
+
+    function getGiftItemId(name) {
+        var giftItem = '';
+        var name = name.split('[');
+        var name = name[1].split(']');
+        giftItem = name[0];
+        return giftItem;
+    }
+
+    var ajaxcartfree = new Ajaxfreecartpage('ajaxcart-load-ajax', 'ajaxcart-pop-up', 'ajaxcart-content', 'div[class="cart"]', $$('.header ul.links').first(), true);
+    function updatewithpos() {
+        var requestUrl = '<?php echo $this->getUrl('promotionalgift/index/getdataforcart'); ?>';
+        new Ajax.Request(requestUrl, {
+            method: 'post',
+            postBody: '',
+            parameters: '',
+            onException: '',
+            onComplete: function (transport) {
+                var xhr = transport.responseText;
+                if (xhr.isJSON) {
+                    var response = xhr.evalJSON();
+                    var itemEditIds = '';
+                    var itemEditOptionIds = '';
+                    var itemIds = '';
+                    if (response.itemEditIds) {
+                        var itemEditIds = response.itemEditIds;
+                    }
+                    if (response.itemEditOptionIds) {
+                        var itemEditOptionIds = response.itemEditOptionIds;
+                    }
+                    if (response.itemIds) {
+                        var itemIds = response.itemIds;
+                    }
+                    var itemEditIds = itemEditIds.split(',');
+                    var itemEditOptionIds = itemEditOptionIds.split(',');
+                    //Disable edit link
+                    var giftEdit = $$('a[title^=<?php echo $this->__('Edit item parameters'); ?>]');
+                    for (var i = 0; i < giftEdit.length; i++) {
+                        for (var j = 0; j < itemEditOptionIds.length; j++) {
+                            if (getGiftEditItemId(giftEdit[i].href) == itemEditOptionIds[j]) {
+                                giftEdit[i].innerHTML = '<?php echo $this->__('Edit Option'); ?>';
+                            }
+                            if (getGiftEditItemId(giftEdit[i].href) == itemEditIds[j]) {
+                                if (giftEdit[i].parentNode)
+                                    giftEdit[i].parentNode.removeChild(giftEdit[i]);
+                            }
+                        }
+                    }
+                    var itemIds = itemIds.split(',');
+                    //Disable qty
+                    var giftQty = $$('input[class^=\'input-text qty\']');
+                    for (var i = 0; i < giftQty.length; i++) {
+                        for (var j = 0; j < itemIds.length; j++) {
+                            if (getGiftItemId(giftQty[i].name) == itemIds[j]) {
+                                giftQty[i].readOnly = true;
+                                giftQty[i].style.background = 'none';
+                                giftQty[i].style.border = 'none';
+                            }
+                        }
+                    }
+                    var update = $('update_with_webpos');
+                    var requestUrlUpdate = '<?php echo $this->getUrl('promotionalgift/index/updatepromotionalpos'); ?>';
+                    new Ajax.Request(requestUrlUpdate, {
+                        method: 'post',
+                        postBody: '',
+                        parameters: '',
+                        onSuccess: function (transport) {
+                            if (transport.status == 200) {
+                                var response = getResponseText(transport);
+                                update.update(response.promotionalgift_shoppingcart);
+                            }
+                        }
+                    });
+                }
+            },
+        });
+    }
+</script>
+<div id="update_with_webpos">
+</div>
+
+<script type="text/javascript">
+    function checkItems(productId) {
+        var maxItem = 0;
+        if ($('numberFreeItems'))
+            var maxItem = $('numberFreeItems').value;
+        if ($('sfree_gift_' + productId)) {
+            if ($('sfree_gift_' + productId).checked == true) {
+                $('number_gift_item').value = $('number_gift_item').value / 1 + 1;
+            } else {
+                $('number_gift_item').value = $('number_gift_item').value / 1 - 1;
+            }
+        }
+        if ($('number_gift_item').value >= maxItem) {
+            disableGiftCheckbox();
+            if ($('number_gift_item').value > maxItem) {
+                disableGiftCheckbox();
+                $('sfree_gift_' + productId).checked = false;
+                $('sfree_gift_' + productId).disabled = true;
+                $('number_gift_item').value = $('number_gift_item').value / 1 - 1;
+            }
+        } else {
+            enableGiftCheckbox();
+        }
+    }
+
+    function disableGiftCheckbox() {
+        var giftsCheckboxs = $$('input[name^=promotionalgifts_checkbox]');
+        for (var i = 0; i < giftsCheckboxs.length; i++) {
+            var item = giftsCheckboxs[i];
+            if (item.checked == false)
+                item.disabled = true;
+        }
+    }
+
+    function enableGiftCheckbox() {
+        var giftsCheckboxs = $$('input[name^=promotionalgifts_checkbox]');
+        for (var i = 0; i < giftsCheckboxs.length; i++) {
+            var item = giftsCheckboxs[i];
+            item.disabled = false;
+        }
+    }
+
+    function addPromotionalGift() {
+        var itemIds = new Array();
+        var ruleId = '';
+        if ($('ruleid'))
+            var ruleId = $('ruleid').value;
+        var giftsCheckboxs = $$('input[name^=promotionalgifts_checkbox]');
+        for (var i = 0; i < giftsCheckboxs.length; i++) {
+            var item = giftsCheckboxs[i];
+            if (item.checked == true) {
+                itemIds[i] = item.value;
+            } else {
+                continue;
+            }
+        }
+        itemIds = itemIds.filter(function () {
+            return true
+        });
+        if (itemIds == '') {
+            alert('<?php echo $this->__("Please select %s promotional offers from the followings",$numberFreeItems);?>');
+            return;
+        }
+        var url = '<?php echo $this->getUrl('promotionalgift/index/addPromotionalGiftsCheckout')?>' + 'items/' + itemIds + '/ruleId/' + ruleId;
+        $('add-free-gift').disabled = true;
+        setLocation(url);
+    }
+</script>

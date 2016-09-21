@@ -1,0 +1,455 @@
+<?php
+/**
+ * Magestore
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Magestore.com license that is
+ * available through the world-wide-web at this URL:
+ * http://www.magestore.com/license-agreement.html
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Magestore
+ * @package     Magestore_Promotionalgift
+ * @copyright   Copyright (c) 2012 Magestore (http://www.magestore.com/)
+ * @license     http://www.magestore.com/license-agreement.html
+ */
+/**
+ * Promotionalgift template
+ *
+ * @see Magestore_Promotionalgift_Block_Shoppingcart
+ */
+?>
+<script type="text/javascript"
+        src="<?php echo $this->getJsUrl() . 'magestore/promotionalgift/jcarousel/jquery-1.4.2.min.js' ?>"></script>
+<script type="text/javascript"
+        src="<?php echo $this->getJsUrl() . 'magestore/promotionalgift/jcarousel/jquery.jcarousel.min.js' ?>"></script>
+<script type="text/javascript" src="<?php echo $this->getJsUrl() . 'magestore/promotionalcartpage.js' ?>"></script>
+<?php
+$storeId = Mage::app()->getStore()->getId();
+$rules = $this->getListShoppingcartRule();
+$icon_image = Mage::helper('promotionalgift')->getPromotionalIcon();
+$helper = Mage::helper('promotionalgift');
+$_helper = $this->helper('catalog/output');
+$iconUrl = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA) . 'promotionalgift/giftlabel/' . $icon_image;
+$shoppingcartTitle = Mage::getStoreConfig('promotionalgift/shoppingcart_rule_configuration/shoppingcarttitle');
+$formUrl = Mage::getUrl('promotionalgift/index/beforeSearch');
+?>
+
+<form method="post" action="<?php echo $formUrl ?>" id="promotional-gift-search-form">
+    <div class="page-title category-title srule-title">
+        <h1><?php echo $this->__('Promotional Gift') ?></h1>
+    </div>
+    <div style="margin-bottom:15px">
+        <table cellspacing="0" class="form-list">
+            <tbody>
+            <tr>
+                <td class="value">
+                    <label style="float:left;line-height: 30px;"><?php echo $this->__('Start Date') ?>:&nbsp;</label>
+
+                    <div style="width: 150px;float:left;">
+                        <input style="width: 115px;" class="input-text validate-date" size="18" type="text"
+                               name="from_date" id="from_date" onchange="checkDateFrom()"/>
+                        <img title="Date from" id="btn_from_date"
+                             src="<?php echo Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_SKIN) . 'adminhtml/default/default/images/grid-cal.gif'; ?>"
+                             class="v-middle">
+                    </div>
+                </td>
+                <td class="value" style="padding-left:10px;">
+                    <label style="float:left;line-height: 30px;"><?php echo $this->__('End Date') ?>:&nbsp;</label>
+
+                    <div style="width: 150px;float:left;">
+                        <input style="width: 115px;" class="input-text validate-date" size="18" type="text"
+                               name="to_date" id="to_date" onchange="checkDateTo()"/>
+                        <img title="Date to" id="btn_to_date"
+                             src="<?php echo Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_SKIN) . 'adminhtml/default/default/images/grid-cal.gif'; ?>"
+                             class="v-middle">
+                    </div>
+                </td>
+                <td class="value" style="padding-left:10px;">
+                    <button type="button" title="search" id="btn_search" onclick="filterShoppingCartList()"
+                            class="button">
+                            <span>
+                                <span><?php echo $this->__('Search') ?></span>
+                            </span>
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</form>
+<?php
+$fromdate = $this->getRequest()->getParam('fromdate');
+$todate = $this->getRequest()->getParam('todate');
+?>
+<?php if ($fromdate): ?>
+    <script type="text/javascript">
+        $('from_date').value = '<?php echo $fromdate ?>'
+    </script>
+<?php endif; ?>
+<?php if ($todate): ?>
+    <script type="text/javascript">
+        $('to_date').value = '<?php echo $todate ?>'
+    </script>
+<?php endif; ?>
+<?php $dateFormatIso = Mage::app()->getLocale()->getDateFormat(Mage_Core_Model_Locale::FORMAT_TYPE_SHORT); ?>
+<script type="text/javascript">
+    //<![CDATA[
+    Calendar.setup({
+        inputField: 'from_date',
+//        ifFormat : '%d-%m-%Y',
+        ifFormat: '%Y-%m-%d',
+//        daFormat : "%d-%m-%Y",
+        daFormat: "%Y-%m-%d",
+        showsTime: false,
+        button: 'btn_from_date',
+        align: 'Bl',
+        singleClick: true
+    });
+
+    Calendar.setup({
+        inputField: 'to_date',
+        //        ifFormat : '%d-%m-%Y',
+        ifFormat: '%Y-%m-%d',
+//        daFormat : "%d-%m-%Y",
+        daFormat: "%Y-%m-%d",
+        showsTime: false,
+        button: 'btn_to_date',
+        align: 'Bl',
+        singleClick: true
+    });
+    //]]>
+</script>
+<script type="text/javascript">
+    var isMobile = navigator.userAgent.match(/iPhone|iPad|iPod/i) || navigator.userAgent.match(/Android/i) || navigator.userAgent.match(/BlackBerry/i) || navigator.userAgent.match(/Opera Mini/i) || navigator.userAgent.match(/IEMobile/i);
+    //<![CDATA[
+    function filterShoppingCartList() {
+        var validator = new Validation('promotional-gift-search-form');
+        if (validator.validate()) {
+            if ($('from_date').value || $('to_date').value) {
+                var re = /^\d{4}-\d{1,2}-\d{1,2}$/;
+                if ($('from_date').value) {
+                    if (re.test($('from_date').value)) {
+                    } else {
+                        alert('<?php echo $this->__('Please pick date as format YYYY-mm-dd') ?>');
+                        return false;
+                    }
+                }
+                if ($('to_date').value) {
+                    if (re.test($('to_date').value)) {
+                    } else {
+                        alert('<?php echo $this->__('Please pick date as format YYYY-mm-dd') ?>');
+                        return false;
+                    }
+                }
+                var url = '<?php echo $this->getUrl('promotionalgift/index/search') ?>';
+                if ($('from_date').value) {
+                    var fromdate = $('from_date').value;
+                    url = url + 'fromdate/' + fromdate + '/';
+                }
+                if ($('to_date').value) {
+                    var todate = $('to_date').value;
+                    url = url + 'todate/' + todate + '/';
+                }
+                setLocation(url);
+            } else {
+                alert('<?php echo $this->__('Please pick date to search') ?>');
+                return false;
+            }
+        }
+    }
+
+    function checkDateTo() {
+        if ($('from_date').value && $('to_date').value) {
+            var from_value = $('from_date').value.split('-');
+            var to_value = $('to_date').value.split('-');
+            var from_array = new Array();
+            from_array[0] = from_value[1];
+            from_array[1] = from_value[0];
+            from_array[2] = from_value[2];
+            var to_array = new Array();
+            to_array[0] = to_value[1];
+            to_array[1] = to_value[0];
+            to_array[2] = to_value[2];
+            var x = new Date(from_array);
+            var y = new Date(to_array);
+            if (x > y) {
+                alert('Wrong date picked');
+                $('from_date').value = '';
+                $('to_date').value = '';
+            }
+        }
+    }
+
+    function checkDateFrom() {
+        var from_value = $('from_date').value.split('-');
+        var to_value = $('to_date').value.split('-');
+        var from_array = new Array();
+        from_array[0] = from_value[1];
+        from_array[1] = from_value[0];
+        from_array[2] = from_value[2];
+        var to_array = new Array();
+        to_array[0] = to_value[1];
+        to_array[1] = to_value[0];
+        to_array[2] = to_value[2];
+        var x = new Date(from_array);
+        var y = new Date(to_array);
+        if (x > y) {
+            alert('Wrong date picked');
+            $('from_date').value = '';
+            $('to_date').value = '';
+        }
+    }
+    //]]>
+</script>
+
+<?php if (count($rules)): ?>
+    <div id="update_promotional_gift">
+        <div class="promotional-title">
+            <h2 class="main-title" style='margin:0;'><?php echo $shoppingcartTitle ?></h2>
+        </div>
+        <div style="margin-bottom:35px;">
+            <?php
+            $j = 1;
+            ?>
+            <?php foreach ($rules as $rule): ?>
+                <?php
+                $legal = false;
+                $now = strtotime(date("Y-m-d", Mage::getModel('core/date')->timestamp(now())));
+                if (strtotime($rule->getFromDate()) > $now && $rule->getShowBeforeDate() == 1) {
+                    $legal = true;
+                } elseif (strtotime($rule->getFromDate()) < $now) {
+                    $legal = true;
+                }
+                if ($legal == true):
+                    ?>
+                    <?php
+                    $ruleId = $rule->getId();
+                    $ruleIds = array();
+                    $ruleIds[] = $rule->getId();
+                    $items = $helper->getShoppingcartFreeGifts($rule);
+                    ?>
+                    <script type="text/javascript">
+                        jQuery(document).ready(function () {
+                            var string = '#promotional-shoppingcart-table-' + "<?php echo $ruleId ?>";
+                            if (isMobile == null) {
+                                jQuery(string).jcarousel({
+                                    scroll: 2,
+                                    visible: 2
+                                });
+                            }
+                        });
+                    </script>
+                <?php if (count($items)): ?>
+                    <div class="promotional-title" style="border-bottom:none">
+                        <a href="javascript:void(0)" class="link-title<?php if (count($rules) == 1) echo ' active'; ?>"
+                           onclick="showCampaign('<?php echo $ruleId ?>');activeClass(this,'<?php echo $ruleId ?>');return false;"><span><?php echo $this->__($rule->getName()); ?></span></a>
+
+                        <div id="rule-information-<?php echo $ruleId ?>" style="display:none">
+                            <?php
+                            if ($rule->getFromDate()) {
+                                echo '<span style="font-style:italic;padding-left:30px">' . $this->__('Start Date: ' . date('M d, Y', strtotime($rule->getFromDate())) . '.' . '</span>');
+                            } else {
+                                echo '<span>' . $this->__('') . '</span>';
+                            }
+                            ?>
+
+                            <?php
+                            if ($rule->getToDate()) {
+                                if ($rule->getFromDate())
+                                    echo '<br/><span style="font-style:italic;padding-left:30px">' . $this->__('End Date: ' . date('M d, Y', strtotime($rule->getToDate())) . '.' . '</span><br/>');
+                                else
+                                    echo '<span style="font-style:italic;padding-left:30px">' . $this->__('End Date: ' . date('M d, Y', strtotime($rule->getToDate())) . '.' . '</span><br/>');
+                            } else {
+                                echo '<span>' . $this->__('') . '</span>';
+                            }
+                            ?>
+                            <br/>
+                            <span style="font-style:italic;padding-left:30px">
+                                <?php
+                                echo $this->__('Description: ' . $rule->getDescription());
+                                ?>
+                            </span>
+                            <br/>
+                            <span style="font-style:italic;padding-left:30px">
+                                <?php
+                                echo $this->__('Applied Time: ' . Mage::helper('promotionalgift')->getCalendarInformation($rule));
+                                ?>
+                            </span>
+                        </div>
+                    </div>
+                    <div id="promotional-srule-<?php echo $ruleId ?>" class="promotional-srule"
+                         style="border:0;margin-top: 0;">
+                        <div id="promotional-shoppingcart-table-<?php echo $ruleId ?>" class="jcarousel-skin-tango">
+                            <ul id="images">
+                                <?php foreach ($items as $item): ?>
+                                    <?php $product = Mage::getModel('catalog/product')->load($item['product_id']); ?>
+                                    <li>
+                                        <div class="item">
+                                            <div
+                                                id="promotional_image_<?php echo $ruleId ?>_<?php echo $product->getId(); ?>"
+                                                class="promotional-image">
+                                                <a class="product-image"
+                                                   title="<?php //echo 'Product'.$product->getId()                                      ?>"
+                                                   href="<?php echo $product->getProductUrl() ?>">
+                                                    <img
+                                                        src="<?php echo $this->helper('catalog/image')->init($product, 'small_image')->resize(100); ?>"
+                                                        width="100" height="100"
+                                                        alt="<?php echo 'Product' . $product->getId() ?>"
+                                                        />
+                                                </a>
+                                            </div>
+                                            <?php $productName = $product->getName() ?>
+                                            <?php
+                                            if (strlen($productName) >= 15) {
+                                                $productName = substr($productName, 0, 14);
+                                                $productName = $productName . '...';
+                                            }
+                                            ?>
+                                            <h2 class="product-name"
+                                                style="text-align:center;"><?php echo $_helper->productAttribute($product, $productName, 'name') ?></h2>
+
+                                            <div class="price-box" style="text-align:center;">
+                                                <p class="old-price">
+                                                    <span class="price-label">Regular Price:</span>
+                                                    <span id="old-price-166" class="price">
+                                                        <?php echo Mage::helper('core')->currency($product->getPrice()); ?>
+                                                    </span>
+                                                </p>
+
+                                                <p class="special-price">
+                                                    <span class="price-label">Special Price</span>
+                                                    <span id="product-price-166" class="price">
+                                                        <?php
+                                                        $specialPrice = $product->getPrice() - ($product->getPrice()) * ($rule->getDiscountProduct()) / 100;
+                                                        echo Mage::helper('core')->currency($specialPrice);
+                                                        ?>
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    </div>
+                <?php $j++; ?>
+                <?php endif ?>
+                    <script type="text/javascript">
+                        Event.observe(window, 'load', function () {
+                            var promotionalDiv = 'promotional-srule-' + '<?php echo $ruleId ?>';
+                            $(promotionalDiv).style.display = 'none';
+                        });
+                        var name = 'promotional-shoppingcart-table-' + '<?php echo $ruleId ?>';
+                        if (isMobile != null) {
+                            $(name).addClassName('mobile');
+                            var ul_tag = $$('#' + name + ' ul')[0];
+                            var li_tag = $$('#' + name + ' ul li');
+                            var li_width = 190 + 20;
+                            var ul_width = li_tag.length * li_width;
+                            ul_tag.setStyle({
+                                width: ul_width + 'px'
+                            });
+                        }
+                    </script>
+                <?php endif; ?>
+            <?php endforeach; ?>
+            <?php $stringIds = implode(',', $ruleIds); ?>
+            <script type="text/javascript">
+                function showCampaign(id) {
+                    var showDivId = 'promotional-srule-' + id;
+                    var showDivInfo = 'rule-information-' + id;
+                    if ($(showDivId).style.display == 'none') {
+                        $(showDivId).style.display = 'block';
+                        $(showDivInfo).style.display = 'block';
+                    } else {
+                        $(showDivId).style.display = 'none';
+                        $(showDivInfo).style.display = 'none';
+                    }
+//                var stringRuleIds = '<?php echo $stringIds; ?>';
+//                var arrayRuleIds = stringRuleIds.split(',');
+//                arrayRuleIds.forEach(function(entry) {
+//                    if(entry != id){
+//                        var closeDivId = 'promotional-srule-' + entry;
+//                        if($(closeDivId).style.display=='block'){
+//                            $(closeDivId).style.display = 'none';
+//                        }
+//                    }
+//                });
+
+                }
+                function activeClass(el, number) {
+                    showDivId = 'promotional-srule-' + number;
+                    if ($(showDivId).style.display == 'none') {
+                        el.removeClassName('active');
+                    } else {
+                        el.addClassName('active')
+
+                    }
+                }
+            </script>
+        </div>
+    </div>
+<?php else: ?>
+    <p class="note-msg"><?php echo $this->__('There are no shopping cart rules matching the selection.') ?></p>
+<?php endif; ?>
+<?php
+$catalogTitle = Mage::getStoreConfig('promotionalgift/catalog_rule_configuration/catalogtitle');
+$catalogRules = $this->getListCatalogRule();
+?>
+<div class="update_promotional_gift">
+    <div class="promotional-title">
+        <h2 class="main-title" style='margin:0;'><?php echo $catalogTitle ?></h2>
+    </div>
+    <?php if (count($catalogRules) == 0): ?>
+        <p class="note-msg"><?php echo $this->__('There are no catalog rules matching the selection.') ?></p>
+    <?php else: ?>
+        <script type="text/javascript">
+            function showCatalogRule(id) {
+                var url = '<?php echo $this->getUrl('promotionalgift/index/showCatalogRule'); ?>'
+                url = url + 'catalogrule/' + id;
+                var myWindow = window.open(url, '', 'menubar, toolbar, location, directories, status, scrollbars, resizable,dependent, width=1000, height=750, left=0, top=0');
+            }
+        </script>
+        <div style="margin-bottom:35px;">
+            <?php
+            $i = 1;
+            ?>
+            <?php foreach ($catalogRules as $catalogRule): ?>
+                <?php $catalogRuleId = $catalogRule->getId() ?>
+                <?php
+                $catlegal = false;
+                $now = strtotime(date("Y-m-d", Mage::getModel('core/date')->timestamp(now())));
+                if (strtotime($catalogRule->getFromDate()) > $now && $catalogRule->getShowBeforeDate() == 1) {
+                    $catlegal = true;
+                } elseif (strtotime($catalogRule->getFromDate()) < $now) {
+                    $catlegal = true;
+                }
+                if ($catlegal == true):
+                    ?>
+                    <div class="promotional-title" style="border-bottom:none">
+                        <a class="link-title" href="javascript:showCatalogRule('<?php echo $catalogRuleId ?>')"><span
+                                style="background:none;"><?php echo $i . '. ' . $this->__($catalogRule->getName()); ?></span></a>
+                    </div>
+                    <?php $i++; ?>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+</div>
+<style>
+    .promotional-title .main-title {
+        background-color: # <?php echo Mage::getStoreConfig('promotionalgift/style/background_title', $storeId); ?>;
+        color: # <?php echo Mage::getStoreConfig('promotionalgift/style/color_title', $storeId); ?>
+    }
+
+    .promotional-title .link-title {
+        background-color: # <?php echo Mage::getStoreConfig('promotionalgift/style/background_label', $storeId); ?>;
+        color: # <?php echo Mage::getStoreConfig('promotionalgift/style/color_label', $storeId); ?>
+    }
+</style>

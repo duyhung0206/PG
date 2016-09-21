@@ -1,0 +1,289 @@
+<?php
+/**
+ * Magestore
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Magestore.com license that is
+ * available through the world-wide-web at this URL:
+ * http://www.magestore.com/license-agreement.html
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Magestore
+ * @package     Magestore_Promotionalgift
+ * @copyright   Copyright (c) 2012 Magestore (http://www.magestore.com/)
+ * @license     http://www.magestore.com/license-agreement.html
+ */
+/**
+ * Promotionalgift template
+ *
+ * @see Magestore_Promotionalgift_Block_Banner
+ */
+?>
+<input type="hidden" id="p_w" value="1715"/>
+<?php
+$helper = Mage::helper('promotionalgift');
+$controller = Mage::app()->getRequest()->getControllerName();
+$router = Mage::app()->getRequest()->getRouteName();
+
+?>
+<?php if (($router == 'checkout' && Mage::helper('promotionalgift')->showFreeGift() == $controller) || ($helper->showFreeGift() == 'both') && $helper->getModuleStatus()): ?>
+    <?php //show Promotional gift has not been add to cart ?>
+    <?php $loadingUrl = $helper->getAjaxloaderImage(); ?>
+    <div id="promotional-over" class="promotional-over">
+        <div id="ajax-loader" class="ajax-loader">
+            <div id="promotionalgift-loader" class="promotionalgift-loader" style="display:none">
+                <div class="spinner">
+                    <div class="spinner-container container1">
+                        <div class="circle1"></div>
+                        <div class="circle2"></div>
+                        <div class="circle3"></div>
+                        <div class="circle4"></div>
+                    </div>
+                    <div class="spinner-container container2">
+                        <div class="circle1"></div>
+                        <div class="circle2"></div>
+                        <div class="circle3"></div>
+                        <div class="circle4"></div>
+                    </div>
+                    <div class="spinner-container container3">
+                        <div class="circle1"></div>
+                        <div class="circle2"></div>
+                        <div class="circle3"></div>
+                        <div class="circle4"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="update_promotional_gift"
+             style="margin-bottom: 25px;background: none repeat scroll 0 0 #FFFFFF;border:1px solid #C5C4C4">
+            <?php
+            $items = array();
+            $mainTitle = Mage::getStoreConfig('promotionalgift/shoppingcart_rule_configuration/shoppingcarttitle');
+            $numberRules = Mage::getStoreConfig('promotionalgift/shoppingcart_rule_configuration/numberofshoppingcartrule');
+            $ruleIds = Mage::helper('promotionalgift/rule')->getShoppingcartRule();
+            $websiteId = Mage::app()->getStore()->getWebsiteId();
+            ?>
+            <?php //turn on display promotional gift shopping cart rule ?>
+            <?php if ($ruleIds) : ?>
+                <script type="text/javascript">
+                    $('promotional-over').style.display = 'block';
+                </script>
+            <?php endif; ?>
+            <?php
+            if ($ruleIds && count($ruleIds) > 0) {
+                ?>
+                <div class="promotional-title">
+                    <h2 class="main-title"><?php echo $this->__($mainTitle) ?></h2>
+                </div>
+                <?php
+                foreach ($ruleIds as $ruleId):
+                    $rule = Mage::getModel('promotionalgift/shoppingcartrule')->load($ruleId);
+                    $items = $helper->getShoppingcartFreeGifts($rule);
+                    ?>
+                    <?php if (count($items)): ?>
+                    <?php
+                    $totalItems = $this->getTotalItem($rule);
+                    $numberFreeItems = $rule->getNumberItemFree();
+                    if ($numberFreeItems > $totalItems)
+                        $numberFreeItems = $totalItems;
+                    $_helper = $this->helper('catalog/output');
+                    $stringIds = implode(',', $ruleIds);
+                    ?>
+                    <?php $quoteId = Mage::getModel('checkout/session')->getQuote()->getId(); ?>
+                    <?php
+                    $productIds = array();
+                    $itemIds = Mage::getModel('promotionalgift/shoppingquote')
+                        ->getCollection()
+                        ->addFieldToFilter('quote_id', $quoteId)
+                        ->addFieldToFilter('shoppingcartrule_id', $ruleId);
+                    if ($itemIds) {
+                        foreach ($itemIds as $itemId) {
+                            $itemId = $itemId->getItemId();
+                            $cartitems = Mage::getModel('checkout/cart')->getQuote()->getAllItems();
+                            foreach ($cartitems as $cartitem) {
+                                if ($cartitem->getItemId() == $itemId) {
+                                    $giftQtyRule = array();
+                                    $giftQtyRules = Mage::helper('promotionalgift/cart')->getGiftShoppingcartRuleProductQty($ruleId, $giftQtyRule);
+                                    $qtyProductRule = $giftQtyRules[$ruleId][$cartitem->getProductId()];
+                                    if ($qtyProductRule == $cartitem->getQty()) {
+                                        $productIds[] = $cartitem->getProductId();
+                                    }
+                                }
+                            }
+                        }
+                        $numberFreeItems += -(count($productIds));
+                        $stringProductIds = implode(',', $productIds);
+                    }
+                    ?>
+                    <?php $giftQuote = Mage::getModel('promotionalgift/shoppingquote'); ?>
+                    <?php
+                    if (count($ruleIds) > 1) {
+                        $multirules = 1;
+                    } else {
+                        $multirules = 0;
+                    }
+                    ?>
+                    <div class="promotional-title" style="border-bottom:none">
+                        <a class="link-title<?php if (count($ruleIds) == 1) echo ' active'; ?>" href=""
+                           onclick="showCampaign('<?php echo $ruleId ?>');
+                               activeClass(this, '<?php echo $ruleId ?>');
+                               return false;"><span><?php echo $this->__($rule->getName()) ?></span></a>
+                        <input type="hidden" id="numberFreeItems_<?php echo $rule->getId(); ?>"
+                               value="<?php echo $numberFreeItems; ?>"/>
+                        <input type="hidden" id="ruleid_<?php echo $rule->getId(); ?>"
+                               value="<?php echo $rule->getId(); ?>"/>
+                        <?php if ($totalItems > 1): ?>
+                            <h5 class="child-title"><?php echo $this->__('Please select %s promotional offers from the followings', $numberFreeItems); ?></h5>
+                        <?php endif ?>
+                    </div>
+                    <div id="promotional-srule-<?php echo $ruleId ?>" class="promotional-srule"
+                         style="border-right:none;border-left:none;">
+                        <div id="promotional-shoppingcart-table-<?php echo $ruleId ?>" class="jcarousel-skin-tango">
+                            <?php foreach ($items as $item): ?>
+                                <?php
+                                $product = Mage::getModel('catalog/product')->load($item['product_id']);
+                                $productWebsiteIds = $product->getWebsiteIds();
+                                ?>
+                                <?php if ($product->getStatus() == 1 && in_array($websiteId, $productWebsiteIds)): ?>
+                                    <div class="item">
+                                        <div
+                                            id="promotional_image_<?php echo $ruleId ?>_<?php echo $product->getId(); ?>"
+                                            class="promotional-image">
+                                            <?php
+                                            $freeShipping = Mage::getModel('promotionalgift/shoppingcartrule')->load($ruleId)->getFreeShipping();
+                                            if ($freeShipping):
+                                                ?>
+                                                <p class="free-shipping">
+                                                        <span
+                                                            class="free-shipping-label"><?php echo $this->__('Free Ship') ?></span>
+                                                </p>
+                                            <?php endif; ?>
+                                            <a class="product-image"
+                                               title="<?php //echo 'Product'.$product->getId()                             ?>"
+                                               href="<?php
+                                               if ($product->getData('visibility') != Mage_Catalog_Model_Product_Visibility::VISIBILITY_NOT_VISIBLE) {
+                                                   echo $product->getProductUrl();
+                                               } else {
+                                                   $parentIds = Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($product->getId());
+                                                   if ($parentIds) {
+                                                       $productParentId = $parentIds[0];
+                                                       $productParentModel = Mage::getModel('catalog/product')->load($productParentId);
+                                                       if ($productParentModel->getData('visibility') != Mage_Catalog_Model_Product_Visibility::VISIBILITY_NOT_VISIBLE) {
+                                                           echo $productParentModel->getProductUrl();
+                                                       } else {
+                                                           echo "#";
+                                                       }
+                                                   } else {
+                                                       echo "#";
+                                                   }
+                                               }
+
+                                               ?>"
+                                                >
+                                                <img
+                                                    src="<?php echo $this->helper('catalog/image')->init($product, 'small_image')->resize(100); ?>"
+                                                    width="100" height="100"
+                                                    alt="<?php echo 'Product' . $product->getId() ?>"
+                                                    />
+                                            </a>
+                                        </div>
+                                        <?php $productName = $product->getName() ?>
+                                        <?php
+                                        if (strlen($productName) >= 15) {
+                                            $productName = substr($productName, 0, 14);
+                                            $productName = $productName . '...';
+                                        }
+                                        ?>
+                                        <h2 class="product-name"
+                                            style="text-align:center;"><?php echo $_helper->productAttribute($product, $productName, 'name') ?></h2>
+
+                                        <div class="price-box" style="text-align:center;">
+                                            <p class="old-price">
+                                                    <span
+                                                        class="price-label"><?php echo $this->__('Regular Price'); ?></span>
+                                                            <span id="old-price-166" class="price">
+                                                                <?php echo Mage::helper('core')->currency($product->getFinalPrice()); ?>
+                                                            </span>
+                                            </p>
+
+                                            <p class="special-price">
+                                                    <span
+                                                        class="price-label"><?php echo $this->__('Special Price'); ?></span>
+                                                            <span id="product-price-166" class="price">
+                                                                <?php
+                                                                if ($rule->getPriceType() == 1) {
+                                                                    $specialPrice = $product->getFinalPrice() - ($product->getFinalPrice()) * ($rule->getDiscountProduct()) / 100;
+                                                                } elseif ($rule->getPriceType() == 2) {
+                                                                    $specialPrice = $product->getFinalPrice() - (($rule->getDiscountProductFixed() >= $product->getFinalPrice()) ? $product->getFinalPrice() : $rule->getDiscountProductFixed());
+                                                                }
+                                                                echo Mage::helper('core')->currency($specialPrice);
+                                                                ?>
+                                                            </span>
+                                            </p>
+
+                                        </div>
+                                        <center>
+                                            <div class="qty-box"><p
+                                                    class="qty"><?php echo $this->__('Qty: %s', $this->getQtyProductRule($product, $rule)); ?></p>
+                                            </div>
+                                        </center>
+                                        <div class="promotional-button">
+                                            <?php
+                                            if ($product->getHasOptions() || $product->getTypeId() == 'grouped' || $product->getTypeId() == 'giftvoucher') {
+                                                $urlProduct = $product->getUrlPath();
+                                            } else {
+                                                $urlProduct = 0;
+                                            }
+                                            ?>
+                                            <?php if ((string)$urlProduct == '0'): ?>
+                                                <?php
+                                                $remainQty = $this->getQtyProductRule($product, $rule);
+                                                $stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);
+                                                $currentQtyInCart = Mage::helper('promotionalgift')->checkItemInCart($product);
+                                                $stockQty = $stockItem->getQty() - $currentQtyInCart;
+                                                if (($stockQty <= 0) && ($stockItem->getManageStock())):
+                                                    ?>
+                                                    <span>
+                                                                    <span><?php echo $this->__('Out of Stock') ?></span>
+                                                                </span>
+                                                <?php else: ?>
+                                                    <button
+                                                        id="add-free-gift_<?php echo $rule->getId() ?>_<?php echo $product->getId() ?>"
+                                                        class="btn-cart addgift" title="Add to Cart" type="button"
+                                                        onclick="addPromotionalGiftCheckout('<?php echo $rule->getId() ?>', '<?php echo $product->getId() ?>', '<?php echo $urlProduct; ?>');">
+                                                                    <span>
+                                                                        <span><?php echo $this->__('Add To Cart') ?></span>
+                                                                    </span>
+                                                    </button>
+                                                <?php endif; ?>
+                                            <?php else: ?>
+                                                <button
+                                                    id="add-free-gift_<?php echo $rule->getId() ?>_<?php echo $product->getId() ?>"
+                                                    class="btn-cart addgift" title="Add to Cart" type="button"
+                                                    onclick="addPromotionalGiftCheckout('<?php echo $rule->getId() ?>', '<?php echo $product->getId() ?>', '<?php echo $urlProduct; ?>');">
+                                                                <span>
+                                                                    <span><?php echo $this->__('Add To Cart') ?></span>
+                                                                </span>
+                                                </button>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <input type="hidden" id="number_gift_item_<?php echo $rule->getId() ?>" value=""/>
+                    <?php Mage::getModel('checkout/session')->setData('back_url_promotionalgift', Mage::helper('core/url')->getCurrentUrl()) ?>
+
+                <?php endif; ?>
+                    <!-- end show Promotional gift has not been add to cart -->
+                <?php endforeach; ?>
+            <?php } ?>
+        </div>
+    </div>
+<?php endif; ?>

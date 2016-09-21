@@ -1,0 +1,96 @@
+<?php
+$storeId = Mage::app()->getStore()->getId();
+$isEnable = Mage::getStoreConfig('promotionalgift/general/enable', $storeId);
+?>
+<?php
+if ($isEnable): ?>
+    <script type="text/javascript">
+        var $progift = new Array();
+        var $j = jQuery.noConflict();
+    </script>
+    <?php
+    $_ruleProducts = Mage::getSingleton('promotionalgift/catalogrule');
+    $productId = $this->getCurrentProduct()->getId();
+    $freeGifts = $this->getIdFreeGifts($productId);
+    $icon_image = Mage::helper('promotionalgift')->getPromotionalIcon();
+    $iconUrl = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA) . 'promotionalgift/giftlabel/' . $icon_image;
+    $websiteId = Mage::app()->getStore()->getWebsiteId();
+
+    ?>
+    <?php if ($this->getRuleByPruduct($productId)): ?>
+    <div id="divider"></div>
+    <div class="freegift" id="freegift">
+        <?php
+        $ruleId = $this->getRuleByPruduct($productId)->getId();
+        $_ruleProduct = $_ruleProducts->load($ruleId);
+        if ($_ruleProduct->getImage()) {
+            $showGiftLabel = Mage::getStoreConfig('promotionalgift/general/showgiftlabel', Mage::app()->getStore()->getId());
+            if ($showGiftLabel) {
+                $icon_image = true;
+                $iconUrl = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA) . 'promotionalgift/label/' . $_ruleProduct->getImage();
+            }
+        } else {
+            $icon_image = Mage::helper('promotionalgift')->getPromotionalIcon();
+            $iconUrl = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA) . 'promotionalgift/giftlabel/' . $icon_image;
+        }
+        ?>
+        <div class="product-tootip-title">
+            <div class="product-tootip-head">
+                <?php if (!empty($icon_image)): ?>
+                    <img width="50px" id="label-freegift" src="<?php echo $iconUrl ?>" alt="Label Promotional Gift"/>
+                <?php endif; ?>
+                <div class="rule-name">
+                    <h3><?php echo $_ruleProduct->getData('name'); ?></h3>
+                </div>
+            </div>
+            <div class="product-rule-description"><?php echo $_ruleProduct->getData('description') ?></div>
+        </div>
+        <div class="product-tootip-content">
+            <div class="product-tootip-gift-list">
+                <?php foreach ($freeGifts as $_freegift): ?>
+                    <?php $_product = Mage::getModel('catalog/product')->load($_freegift);
+                    $productWebsiteIds = $_product->getWebsiteIds();
+                    ?>
+                    <?php if ($_product->getStatus() != 2): ?>
+                        <a data-toggle="popover" id="product_<?php echo $_product->getId() ?>"
+                           href="<?php echo $_product->getProductUrl() ?>"
+                           title="<?php echo $this->stripTags($this->getImageLabel($_product, 'small_image'), null, true) ?>"
+                           class="product-gift-image">
+                            <img
+                                src="<?php echo $this->helper('catalog/image')->init($_product, 'small_image')->resize(80); ?>"
+                                width="81" height="81"
+                                alt="<?php echo $this->stripTags($this->getImageLabel($_product, 'small_image'), null, true) ?>"
+                                />
+                        </a>
+                        <script type="text/javascript">
+                            $progift.push({
+                                'item-id': 'product_<?php echo $_product->getId() ?>',
+                                'htmlcode': '<?php echo '<div class="wrap-content-popover">'
+                                            . str_replace('\'','\\\'','<div class="price-box"><p class="old-price">'  . Mage::helper('core')->formatPrice($_product->getFinalPrice()) . '</p></div>')
+                                            . str_replace('\'','\\\'','<img src="'.$this->helper('catalog/image')->init($_product, 'small_image')->resize(157).'" width="157" height="157" alt="'
+                                            . $this->stripTags($this->getImageLabel($_product, 'small_image'), null, true) .'"/></div>'); ?>'
+                            })
+                        </script>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </div>
+    <!--create tooltip for gift items-->
+    <script type="text/javascript">
+        $j(document).ready(function () {
+            for (var $i = 0; $i < $progift.length; $i++) {
+                $j('#' + $progift[$i]['item-id'] + '[data-toggle="popover"]').popover({
+                    placement: 'top',
+                    trigger: 'hover',
+                    html: true,
+                    content: $progift[$i]['htmlcode']
+                });
+            }
+        });
+    </script>
+<?php endif; ?>
+<?php endif; ?>
+
+
+
