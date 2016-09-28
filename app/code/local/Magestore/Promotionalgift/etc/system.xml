@@ -2,18 +2,18 @@
 <!--
 /**
  * Magestore
- * 
+ *
  * NOTICE OF LICENSE
- * 
+ *
  * This source file is subject to the Magestore.com license that is
  * available through the world-wide-web at this URL:
  * http://www.magestore.com/license-agreement.html
- * 
+ *
  * DISCLAIMER
- * 
+ *
  * Do not edit or add to this file if you wish to upgrade this extension to newer
  * version in the future.
- * 
+ *
  * @category    Magestore
  * @package     Magestore_Promotionalgift
  * @copyright   Copyright (c) 2012 Magestore (http://www.magestore.com/)
@@ -56,6 +56,16 @@
                             <show_in_store>1</show_in_store>
                             <comment></comment>
                         </enable>
+                        <numberorder translate="label">
+                            <label>Number order allow auto add gift to cart</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment></comment>
+                            <validate>validate-not-negative-number</validate>
+                        </numberorder>
                         <show_toplink translate="label">
                             <label>Show Promotional Gift' top link on site</label>
                             <frontend_type>select</frontend_type>

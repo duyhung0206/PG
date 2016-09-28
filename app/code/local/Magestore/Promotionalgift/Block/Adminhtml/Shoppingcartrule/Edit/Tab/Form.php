@@ -145,6 +145,13 @@ class Magestore_Promotionalgift_Block_Adminhtml_Shoppingcartrule_Edit_Tab_Form e
             'note' => Mage::helper('promotionalgift')->__('Number of times that the rule is applied.  If empty, there is no limitation.'),
         ));
 
+        $fieldset->addField('limit_customer', 'text', array(
+            'label' => Mage::helper('promotionalgift')->__('The number \'s customer limit'),
+            'name' => 'limit_customer',
+            'note' => Mage::helper('promotionalgift')
+                ->__('The number \'s customer limit is applied. If empty, there is no limitation.'),
+        ));
+
         /* $fieldset->addField('time_used', 'text', array(
             'label'        => Mage::helper('promotionalgift')->__('Time Used'),
             //'class'        => 'required-entry',

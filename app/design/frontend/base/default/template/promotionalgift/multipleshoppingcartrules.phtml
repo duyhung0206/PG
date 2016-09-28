@@ -89,6 +89,7 @@ $router=Mage::app()->getRequest()->getRouteName();
         <div class="promotional-title">
             <h2 class="main-title"><?php echo $this->__('SELECT YOUR GIFT') ?></h2>
         </div>
+
         <?php foreach ($ruleIds as $ruleId): ?>
             <?php $rule = Mage::getModel('promotionalgift/shoppingcartrule')->load($ruleId); ?>
             <?php $items = $helper->getShoppingcartFreeGifts($rule); ?>
@@ -287,6 +288,22 @@ $router=Mage::app()->getRequest()->getRouteName();
                 </div>
 
                 <input type="hidden" id="number_gift_item_<?php echo $rule->getId() ?>" value=""/>
+            <?php else: ?>
+                <div class="promotional-title" style="border-bottom:none">
+                    <a  class="link-title<?php if (count($ruleIds) == 1) echo ' active'; ?>" href="" onclick="activeClass(this, '<?php echo $ruleId ?>');
+                        return false;"><span><?php echo $this->__($rule->getName()) ?></span></a>
+                    <div class="link_paginator">
+                        <button id="previous_rule" onclick="loadRule(this,1,'shop')"><?php echo $this->__('Previous Rule') ?></button> ||
+                        <button id="next_rule" onclick="loadRule(this,2,'shop')"><?php echo $this->__('Next Rule') ?></button>
+                    </div>
+                    <input type="hidden" id="numberFreeItems_<?php echo $rule->getId(); ?>" value="<?php echo $numberFreeItems; ?>" />
+                    <input type="hidden" id="ruleid_<?php echo $rule->getId(); ?>" value="<?php echo $rule->getId(); ?>" />
+                </div>
+                <div id="promotional-srule-<?php echo $ruleId ?>" class="promotional-srule" style="border-right:none;border-left:none;margin-bottom: 20px;">
+                    <?php if ($totalItems == 0): ?>
+                        <h5 class="child-title"><?php echo $this->__('Sorry! Promotional gift out stock'); ?></h5>
+                    <?php endif ?>
+                </div>
             <?php endif; ?>
 
         <?php endforeach; ?>

@@ -38,6 +38,8 @@ class Magestore_Promotionalgift_Model_Observer
     public function checkoutCartProductAddAfter($observer)
     {
         if (Mage::getStoreConfig('promotionalgift/catalog_rule_configuration/autoupdateqty') == 1) {
+
+
             if (!Mage::helper('promotionalgift')->enablePromotionalgift())
                 return $this;
             //Add Promotional gift by shopping cart rule
@@ -110,6 +112,9 @@ class Magestore_Promotionalgift_Model_Observer
                 }
                 //Auto add free gift of Catalog Rule
                 if ($availableRule && $autoAddGift) {
+                    if(!$this->isAllowAutoAddGift()){
+                        return $this;
+                    }
                     $catalogItem = Mage::getModel('promotionalgift/catalogitem')
                         ->getCollection()
                         ->addFieldToFilter('rule_id',$availableRule->getId())
@@ -314,7 +319,7 @@ class Magestore_Promotionalgift_Model_Observer
                                                                     $key1 = $k1;
                                                                     $key2 = $k2;
                                                                     $id2 = $optionId2;
-                                                                    $next = 1;
+                                                                    $next = 1;  
                                                                     break;
                                                                 }
                                                                 if($next == '1') break;
@@ -445,6 +450,18 @@ class Magestore_Promotionalgift_Model_Observer
         }
     }
 
+    public function isAllowAutoAddGift(){
+        $customer = Mage::getSingleton('customer/session')->getCustomer();
+        $orders = Mage::getModel('sales/order')->getCollection()
+            ->addFieldToFilter('customer_id', $customer->getId());
+        $config_number_order = Mage::getStoreConfig('promotionalgift/general/numberorder');
+        $config_number_order?$config_number_order:0;
+        if(count($orders) != 0 && count($orders) < $config_number_order){
+            return false;
+        }
+        return true;
+    }
+
     public function salesQuoteItemSaveAfter($observer) {
         if (!Mage::helper('promotionalgift')->enablePromotionalgift()) {
             return $this;
@@ -472,8 +489,12 @@ class Magestore_Promotionalgift_Model_Observer
                 }
             }
         }
+
+
         /*thinhnd*/
+
         if (Mage::getStoreConfig('promotionalgift/catalog_rule_configuration/autoupdateqty') == 1) {
+
             $hasProductParent = Mage::getModel('checkout/session')->getData('has_product_parent');
             $quoteId = Mage::getModel('checkout/cart')->getQuote()->getId();
             $catalogQuote = Mage::getModel('promotionalgift/quote')
@@ -533,6 +554,9 @@ class Magestore_Promotionalgift_Model_Observer
                         ->addFieldToFilter('quote_id', $quoteId);
                     $autoAddGift = Mage::getStoreConfig('promotionalgift/catalog_rule_configuration/autoaddgift', Mage::app()->getStore()->getId());
                     if ($autoAddGift && count($catalogQuoteRule) == 0) {
+                        if(!$this->isAllowAutoAddGift()){
+                            return $this;
+                        }
                         if ($catalogItem->getId()) {
                             $productId = $item->getProductId();
                             Mage::helper('promotionalgift/cart')->autoAddCatalogGift($catalogItem, $productId, $availableRule, $itemId);
@@ -632,7 +656,6 @@ class Magestore_Promotionalgift_Model_Observer
         } else {
             Mage::getModel('checkout/session')->setData('product_parent', $item->getId());
         }
-
 
         //add data for catalogrule
         if (Mage::getStoreConfig('promotionalgift/catalog_rule_configuration/autoupdateqty') == 1) {
@@ -939,6 +962,43 @@ class Magestore_Promotionalgift_Model_Observer
                 }
                 $shoppingcartRules = implode(',', $shoppingcartRuleIds);
             }
+            if($shoppingcartRuleIds){
+                $customer_id = $order->getCustomerId();
+                foreach ($shoppingcartRuleIds as $shoppingcartRuleId) {
+                    try {
+                        $promotionalgiftCustomer = Mage::getModel('promotionalgift/limitcustomer');
+                        $data = array(
+                            'customer_id' => $customer_id,
+                            'catalogrule_id' => '0',
+                            'shoppingcartrule_id' => $shoppingcartRuleId
+                        );
+                        $promotionalgiftCustomer->setData($data)->save();
+
+                    } catch (Exception $e) {
+                        Mage::log($e, null, 'shoppingcartrule.log');
+                    }
+                }
+            }
+
+            if($catalogRuleIds){
+                $customer_id = $order->getCustomerId();
+                foreach ($catalogRuleIds as $catalogRuleId){
+                    try {
+                        $promotionalgiftCustomer = Mage::getModel('promotionalgift/limitcustomer');
+                        $data =array(
+                            'customer_id'=> $customer_id,
+                            'catalogrule_id'=> $catalogRuleId,
+                            'shoppingcartrule_id'=> '0'
+                        );
+                        $promotionalgiftCustomer->setData($data)->save();
+
+                    } catch (Exception $e) {
+                        Mage::log($e,null,'catalogrule.log');
+                    }
+                }
+
+            }
+
             if ($productIds) {
                 $promotionalgiftSale = Mage::getModel('promotionalgift/sale');
                 $promotionalgiftSale->setData('order_id', $order->getId())
@@ -1198,6 +1258,9 @@ class Magestore_Promotionalgift_Model_Observer
         }
         $autoAddGift = Mage::getStoreConfig('promotionalgift/shoppingcart_rule_configuration/automaticadd', Mage::app()->getStore()->getId());
         if (!Mage::registry('autoaddcart') && $autoAddGift) {
+            if(!$this->isAllowAutoAddGift()){
+                return $this;
+            }
             $availableCart = $this->getShoppingcartRule();
             $numberShoppingCart = Mage::getStoreConfig(
                 'promotionalgift/shoppingcart_rule_configuration/numberofshoppingcartrule'
@@ -1939,6 +2002,9 @@ class Magestore_Promotionalgift_Model_Observer
         $removeParam = Mage::app()->getRequest()->getParam('remove');
         $autoAddGift = Mage::getStoreConfig('promotionalgift/shoppingcart_rule_configuration/automaticadd', Mage::app()->getStore()->getId());
         if (($action=='add'|| $action=='updatePost')&& $updateAction != 'empty_cart' && $removeParam != 1 && $autoAddGift) {
+            if(!$this->isAllowAutoAddGift()){
+                return $this;
+            }
             if (!Mage::registry('autoaddcart') && (!Mage::getModel('checkout/session')->getData('catalog_rule_id'))) {
                 if (!Mage::getModel('checkout/session')->getData('catalog_rule_id')) {
                     $availableCart = $this->getShoppingcartRule();

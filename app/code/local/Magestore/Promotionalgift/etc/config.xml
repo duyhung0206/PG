@@ -23,7 +23,7 @@
 <config>
     <modules>
         <Magestore_Promotionalgift>
-            <version>0.2.8</version>
+            <version>0.2.9</version>
         </Magestore_Promotionalgift>
     </modules>
     <frontend>
@@ -210,6 +210,9 @@
             <promotionalgift_mysql4>
                 <class>Magestore_Promotionalgift_Model_Mysql4</class>
                 <entities>
+                    <limitcustomer>
+                        <table>promotionalgift_customer</table>
+                    </limitcustomer>
                     <catalogrule>
                         <table>promotionalgift_catalog_rule</table>
                     </catalogrule>
@@ -336,6 +339,7 @@
             <sales_order_place_after>
                 <observers>
                     <promotionalgift_observers>
+                        <type>singleton</type>
                         <class>promotionalgift/observer</class>
                         <method>salesOrderPlaceAfter</method>
                     </promotionalgift_observers>

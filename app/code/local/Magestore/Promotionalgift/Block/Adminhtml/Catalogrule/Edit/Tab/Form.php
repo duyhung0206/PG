@@ -130,6 +130,13 @@ class Magestore_Promotionalgift_Block_Adminhtml_Catalogrule_Edit_Tab_Form extend
                 ->__('Number of times that the rule is applied. If empty, there is no limitation.'),
         ));
 
+        $fieldset->addField('limit_customer', 'text', array(
+            'label' => Mage::helper('promotionalgift')->__("The number 's customer limit"),
+            'name' => 'limit_customer',
+            'note' => Mage::helper('promotionalgift')
+                ->__('The number \'s customer limit is applied. If empty, there is no limitation.'),
+        ));
+
         $dateFormatIso = Mage::app()->getLocale()->getDateFormat(Mage_Core_Model_Locale::FORMAT_TYPE_SHORT);
         $fieldset->addField('from_date', 'date', array(
             'name' => 'from_date',

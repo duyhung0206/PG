@@ -148,6 +148,8 @@ class Magestore_Promotionalgift_Adminhtml_Promotionalgift_ShoppingcartruleContro
                     $data['discount_product_fixed'] = ($data['discount_product_fixed'] < 0) ? 0 : $data['discount_product_fixed'];
                 }
             }
+            if (!$data['limit_customer'] && $data['limit_customer'] != '0')
+                $data['limit_customer'] = null;
             if (!$data['uses_per_coupon'] && $data['uses_per_coupon'] != '0') $data['uses_per_coupon'] = null;
             if (!$data['time_used'] && $data['time_used'] != '0') $data['time_used'] = null;
             // add data to model

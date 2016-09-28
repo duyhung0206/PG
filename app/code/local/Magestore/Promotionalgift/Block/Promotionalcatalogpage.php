@@ -67,6 +67,10 @@ class Magestore_Promotionalgift_Block_Promotionalcatalogpage extends Mage_Catalo
         } else {
             $shoppingcartRules->addFieldToFilter('customer_group_ids', array('finset' => Mage_Customer_Model_Group::NOT_LOGGED_IN_ID));
         }
+        $number_customer = count(Mage::getModel('promotionalgift/limitcustomer')->getCollection()
+            ->addFieldToFilter('shoppingcartrule_id', $shoppingcartRules->getId()));
+        $shoppingcartRules->getSelect()->where('(limit_customer IS NULL) OR (limit_customer <= '.$number_customer.')');
+
         $shoppingcartRules->getSelect()->where('(uses_per_coupon IS NULL) OR (uses_per_coupon > 0)');
         $fromdate = strtotime($this->getRequest()->getParam('fromdate'));
         $todate = strtotime($this->getRequest()->getParam('todate'));
@@ -107,7 +111,12 @@ class Magestore_Promotionalgift_Block_Promotionalcatalogpage extends Mage_Catalo
         } else {
             $catalogRules->addFieldToFilter('customer_group_ids', array('finset' => Mage_Customer_Model_Group::NOT_LOGGED_IN_ID));
         }
+        $number_customer = count(Mage::getModel('promotionalgift/limitcustomer')->getCollection()
+            ->addFieldToFilter('catalogrule_id', $catalogRules->getId()));
+        $catalogRules->getSelect()->where('(limit_customer IS NULL) OR (limit_customer <= '.$number_customer.')');
+
         $catalogRules->getSelect()->where('(uses_limit IS NULL) OR (uses_limit > 0)');
+
         $fromdate = strtotime($this->getRequest()->getParam('fromdate'));
         $todate = strtotime($this->getRequest()->getParam('todate'));
         if ($catalogRules) {

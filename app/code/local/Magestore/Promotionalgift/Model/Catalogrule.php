@@ -74,12 +74,40 @@ class Magestore_Promotionalgift_Model_Catalogrule extends Mage_Rule_Model_Rule
         if (Mage::getModel('customer/session')->isLoggedIn()) {
             $customer = Mage::getModel('customer/customer')->load(Mage::getModel('customer/session')->getCustomerId());
             $availableRules->addFieldToFilter('customer_group_ids', array('finset' => $customer->getGroupId()));
+
+            $arrayRuleId = array();
+            foreach ($availableRules as $availableRule){
+                $number_customer = count(Mage::getModel('promotionalgift/limitcustomer')->getCollection()
+                    ->addFieldToFilter('catalogrule_id', $availableRule->getRuleId())
+                    ->addFieldToFilter('customer_id', $customer->getId()));
+                if($number_customer > 0){
+                    $arrayRuleId[] = $availableRule->getRuleId();
+                }else{
+                    $number_customer = count(Mage::getModel('promotionalgift/limitcustomer')->getCollection()
+                        ->addFieldToFilter('catalogrule_id', $availableRule->getRuleId()));
+                    if($availableRule->getLimitCustomer() == null || $availableRule->getLimitCustomer() > $number_customer){
+                        $arrayRuleId[] = $availableRule->getRuleId();
+                    }
+                }
+            }
+
+            $availableRules->addFieldToFilter('rule_id',array('in' => $arrayRuleId));
         } else {
             $availableRules->addFieldToFilter('customer_group_ids', array('finset' => Mage_Customer_Model_Group::NOT_LOGGED_IN_ID));
+            $arrayRuleId = array();
+            foreach ($availableRules as $availableRule){
+                $number_customer = count(Mage::getModel('promotionalgift/limitcustomer')->getCollection()
+                    ->addFieldToFilter('catalogrule_id', $availableRule->getRuleId()));
+                if($availableRule->getLimitCustomer() == null || $availableRule->getLimitCustomer() > $number_customer){
+                    $arrayRuleId[] = $availableRule->getRuleId();
+                }
+            }
+            $availableRules->addFieldToFilter('rule_id',array('in' => $arrayRuleId));
         }
         $availableRules->getSelect()->where('(from_date IS NULL) OR (date(from_date) <= date(?))', Mage::getModel('core/date')->date('Y-m-d'));
         $availableRules->getSelect()->where('(to_date IS NULL) OR (date(to_date) >= date(?))', Mage::getModel('core/date')->date('Y-m-d'));
         $availableRules->getSelect()->where('(uses_limit IS NULL) OR (uses_limit > 0)');
+
         $availableRules->setOrder('priority', 'ASC');
         $availableRules->setOrder('rule_id', 'DESC');
         return $availableRules;
@@ -90,7 +118,7 @@ class Magestore_Promotionalgift_Model_Catalogrule extends Mage_Rule_Model_Rule
 		$catalogRuleIds = Mage::helper('promotionalgift')->getCurrentAvailableRule();
 		$availableRules->addFieldToFilter('rule_id',array('in' => $catalogRuleIds));
         $availableRules->setPageSize(1)->setCurPage($page);
-        if (count($availableRules)) {
+        if (count($availableRules->getData())) {
             return $availableRules;
         }
         return null;
@@ -102,7 +130,7 @@ class Magestore_Promotionalgift_Model_Catalogrule extends Mage_Rule_Model_Rule
 		$catalogRuleIds = Mage::helper('promotionalgift')->getCurrentAvailableRule();
 		$availableRules->addFieldToFilter('rule_id',array('in' => $catalogRuleIds));
         $availableRules->setPageSize(1)->setCurPage(1);
-        if (count($availableRules)) {
+        if (count($availableRules->getData())) {
             return $availableRules;
         }
         return null;
@@ -111,7 +139,7 @@ class Magestore_Promotionalgift_Model_Catalogrule extends Mage_Rule_Model_Rule
     {
         // if(!Mage::helper('promotionalgift')->checkModuleEnable()) return null;
         $availableRules = $this->getAllRules();
-        if (count($availableRules)) {
+        if (count($availableRules->getData())) {
             return $availableRules;
         }
         return null;

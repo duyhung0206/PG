@@ -20,6 +20,28 @@
  */
 class Magestore_Promotionalgift_IndexController extends Mage_Core_Controller_Front_Action
 {
+    public function testAction(){
+        $promotionalgiftCustomer = Mage::getModel('promotionalgift/limitcustomer');
+        $data =array(
+            'customer_id'=> 140,
+            'catalogrule_id'=> '',
+            'shoppingcartrule_id'=> 2
+        );
+        var_dump($data);
+        $promotionalgiftCustomer->setData($data)->save();
+        die();
+    }
+//
+//    public function numberorderAction(){
+//        $customer = Mage::getSingleton('customer/session')->getCustomer();
+//        $orders = Mage::getModel('sales/order')->getCollection()
+//            ->addFieldToFilter('customer_id', $customer->getId());
+//        $config_number_order = Mage::getStoreConfig('promotionalgift/general/numberorder');
+//        $config_number_order?$config_number_order:0;
+//        if(count($orders) != 0 && count($orders) < $config_number_order){
+//            echo "ok";
+//        }
+//    }
 
     public function indexAction()
     {
