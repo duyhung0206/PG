@@ -955,48 +955,21 @@ class Magestore_Promotionalgift_Model_Observer
                         try {
                             $shoppingRule->setUsesPerCoupon(intval($shoppingRule->getUsesPerCoupon()) - 1)
                                 ->save();
+
+                            $customer_id = $order->getCustomerId();
+                            $promotionalgiftCustomer = Mage::getModel('promotionalgift/limitcustomer');
+                            $data = array(
+                                'customer_id' => $customer_id,
+                                'catalogrule_id' => '0',
+                                'shoppingcartrule_id' => $shoppingRule->getId()
+                            );
+                            $promotionalgiftCustomer->setData($data)->save();
                         } catch (Exception $e) {
 
                         }
                     }
                 }
                 $shoppingcartRules = implode(',', $shoppingcartRuleIds);
-            }
-            if($shoppingcartRuleIds){
-                $customer_id = $order->getCustomerId();
-                foreach ($shoppingcartRuleIds as $shoppingcartRuleId) {
-                    try {
-                        $promotionalgiftCustomer = Mage::getModel('promotionalgift/limitcustomer');
-                        $data = array(
-                            'customer_id' => $customer_id,
-                            'catalogrule_id' => '0',
-                            'shoppingcartrule_id' => $shoppingcartRuleId
-                        );
-                        $promotionalgiftCustomer->setData($data)->save();
-
-                    } catch (Exception $e) {
-                        Mage::log($e, null, 'shoppingcartrule.log');
-                    }
-                }
-            }
-
-            if($catalogRuleIds){
-                $customer_id = $order->getCustomerId();
-                foreach ($catalogRuleIds as $catalogRuleId){
-                    try {
-                        $promotionalgiftCustomer = Mage::getModel('promotionalgift/limitcustomer');
-                        $data =array(
-                            'customer_id'=> $customer_id,
-                            'catalogrule_id'=> $catalogRuleId,
-                            'shoppingcartrule_id'=> '0'
-                        );
-                        $promotionalgiftCustomer->setData($data)->save();
-
-                    } catch (Exception $e) {
-                        Mage::log($e,null,'catalogrule.log');
-                    }
-                }
-
             }
 
             if ($productIds) {
@@ -1232,12 +1205,58 @@ class Magestore_Promotionalgift_Model_Observer
                 }
                 $action->getResponse()->setRedirect(Mage::getUrl('checkout/cart'));
                 return $this;
+
             }
         } else {
             if ($ruleId) {
                 if (!$session->getData('promptionalgift_coupon_code')) {
                     $session->setData('promptionalgift_coupon_code', $code);
                     $session->setData('promotionalgift_shoppingcart_rule_id', $ruleId);
+
+                    /*Check limit customer - Hades 20/10/2016*/
+
+                    if(!Mage::getSingleton('customer/session')->isLoggedIn()){
+                        $session->setData('promptionalgift_coupon_code', null);
+                        $session->setData('shoppingcart_couponcode_rule_id', null);
+                        $session->setData('promotionalgift_shoppingcart_rule_id', null);
+                        $session->setData('promotionalgift_shoppingcart_rule_used', null);
+                        $session->addError(Mage::helper('promotionalgift')
+                            ->__("You're out of rule to use"));
+                        $action->getResponse()->setRedirect(Mage::getUrl('checkout/cart'));
+                        return;
+                    }
+
+                    $customerId = Mage::getSingleton('customer/session')->getId();
+                    $promotionalgiftCustomer = Mage::getModel('promotionalgift/limitcustomer')->getCollection()
+                        ->addFieldToFilter('customer_id', $customerId)
+                        ->addFieldToFilter('shoppingcartrule_id', $ruleId);
+                    $shoppingCartRule = Mage::getModel('promotionalgift/shoppingcartrule')->load($ruleId);
+
+                    if(count($promotionalgiftCustomer) >= (int)$shoppingCartRule->getLimitCustomer()){
+                        $session->setData('promptionalgift_coupon_code', null);
+                        $session->setData('shoppingcart_couponcode_rule_id', null);
+                        $session->setData('promotionalgift_shoppingcart_rule_id', null);
+                        $session->setData('promotionalgift_shoppingcart_rule_used', null);
+                        $session->addError(Mage::helper('promotionalgift')
+                            ->__("Over limit uses per customer !"));
+                        if ($ruleId) {
+                            $shoppingQuote = Mage::getModel('sales/quote_item');
+                            $giftItems = Mage::getModel('promotionalgift/shoppingquote')->getCollection()
+                                ->addFieldToFilter('shoppingcartrule_id', $ruleId);
+                            foreach ($giftItems as $item) {
+                                try {
+                                    $item->delete();
+                                    $cart->removeItem($item->getItemId())->save();
+                                } catch (Exception $e) {
+
+                                }
+                            }
+                        }
+                        $action->getResponse()->setRedirect(Mage::getUrl('checkout/cart'));
+
+                        return;
+                    }
+
                     $quote = Mage::getSingleton('checkout/cart')->getQuote();
                     $quote->setCouponCode('');
                     $quote->collectTotals()->save();

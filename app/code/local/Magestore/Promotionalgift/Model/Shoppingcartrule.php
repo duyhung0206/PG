@@ -119,34 +119,10 @@ class Magestore_Promotionalgift_Model_Shoppingcartrule extends Mage_Rule_Model_R
             $customer = Mage::getModel('customer/customer')->load(Mage::getModel('customer/session')->getCustomerId());
             $availableRules->addFieldToFilter('customer_group_ids', array('finset' => $customer->getGroupId()));
 
-            $arrayRuleId = array();
-            foreach ($availableRules as $availableRule){
-                $number_customer = count(Mage::getModel('promotionalgift/limitcustomer')->getCollection()
-                    ->addFieldToFilter('shoppingcartrule_id', $availableRule->getRuleId())
-                    ->addFieldToFilter('customer_id', $customer->getId()));
-                if($number_customer > 0){
-                    $arrayRuleId[] = $availableRule->getRuleId();
-                }else{
-                    $number_customer = count(Mage::getModel('promotionalgift/limitcustomer')->getCollection()
-                        ->addFieldToFilter('shoppingcartrule_id', $availableRule->getRuleId()));
-                    if($availableRule->getLimitCustomer() == null || $availableRule->getLimitCustomer() > $number_customer){
-                        $arrayRuleId[] = $availableRule->getRuleId();
-                    }
-                }
-            }
 
-            $availableRules->addFieldToFilter('rule_id',array('in' => $arrayRuleId));
         } else {
             $availableRules->addFieldToFilter('customer_group_ids', array('finset' => Mage_Customer_Model_Group::NOT_LOGGED_IN_ID));
-            $arrayRuleId = array();
-            foreach ($availableRules as $availableRule){
-                $number_customer = count(Mage::getModel('promotionalgift/limitcustomer')->getCollection()
-                    ->addFieldToFilter('shoppingcartrule_id', $availableRule->getRuleId()));
-                if($availableRule->getLimitCustomer() == null || $availableRule->getLimitCustomer() > $number_customer){
-                    $arrayRuleId[] = $availableRule->getRuleId();
-                }
-            }
-            $availableRules->addFieldToFilter('rule_id',array('in' => $arrayRuleId));
+
         }
 
         $availableRules->getSelect()->where('(uses_per_coupon IS NULL) OR (uses_per_coupon > 0)');
@@ -173,34 +149,9 @@ class Magestore_Promotionalgift_Model_Shoppingcartrule extends Mage_Rule_Model_R
             $customer = Mage::getModel('customer/customer')->load(Mage::getModel('customer/session')->getCustomerId());
             $availableRules->addFieldToFilter('customer_group_ids', array('finset' => $customer->getGroupId()));
 
-            $arrayRuleId = array();
-            foreach ($availableRules as $availableRule){
-                $number_customer = count(Mage::getModel('promotionalgift/limitcustomer')->getCollection()
-                    ->addFieldToFilter('shoppingcartrule_id', $availableRule->getRuleId())
-                    ->addFieldToFilter('customer_id', $customer->getId()));
-                if($number_customer > 0){
-                    $arrayRuleId[] = $availableRule->getRuleId();
-                }else{
-                    $number_customer = count(Mage::getModel('promotionalgift/limitcustomer')->getCollection()
-                        ->addFieldToFilter('shoppingcartrule_id', $availableRule->getRuleId()));
-                    if($availableRule->getLimitCustomer() == null || $availableRule->getLimitCustomer() > $number_customer){
-                        $arrayRuleId[] = $availableRule->getRuleId();
-                    }
-                }
-            }
-
-            $availableRules->addFieldToFilter('rule_id',array('in' => $arrayRuleId));
         } else {
             $availableRules->addFieldToFilter('customer_group_ids', array('finset' => Mage_Customer_Model_Group::NOT_LOGGED_IN_ID));
-            $arrayRuleId = array();
-            foreach ($availableRules as $availableRule){
-                $number_customer = count(Mage::getModel('promotionalgift/limitcustomer')->getCollection()
-                    ->addFieldToFilter('shoppingcartrule_id', $availableRule->getRuleId()));
-                if($availableRule->getLimitCustomer() == null || $availableRule->getLimitCustomer() > $number_customer){
-                    $arrayRuleId[] = $availableRule->getRuleId();
-                }
-            }
-            $availableRules->addFieldToFilter('rule_id',array('in' => $arrayRuleId));
+         
         }
 
         $availableRules->getSelect()->where('(uses_per_coupon IS NULL) OR (uses_per_coupon > 0)');

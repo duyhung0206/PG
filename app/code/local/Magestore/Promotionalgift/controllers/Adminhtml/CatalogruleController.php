@@ -149,8 +149,7 @@ class Magestore_Promotionalgift_Adminhtml_CatalogruleController extends Mage_Adm
                     $data['discount_product_fixed'] = ($data['discount_product_fixed'] < 0) ? 0 : $data['discount_product_fixed'];
                 }
             }
-            if (!$data['limit_customer'] && $data['limit_customer'] != '0')
-                $data['limit_customer'] = null;
+            
             if (!$data['uses_limit'] && $data['uses_limit'] != '0')
                 $data['uses_limit'] = null;
             if (isset($data['time_used']) && !$data['time_used'] && $data['time_used'] != '0')

@@ -21,6 +21,8 @@
 class Magestore_Promotionalgift_IndexController extends Mage_Core_Controller_Front_Action
 {
     public function testAction(){
+       
+        die();
         $promotionalgiftCustomer = Mage::getModel('promotionalgift/limitcustomer');
         $data =array(
             'customer_id'=> 140,
